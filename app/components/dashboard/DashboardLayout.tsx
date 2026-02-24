@@ -1,16 +1,16 @@
 import { ReactNode, useState } from "react";
 import {
-  Sparkles,
   History,
   CreditCard,
   Settings,
   LogOut,
-  Menu,
-  X,
   Shield,
   MessageCircle,
   Sun,
   Moon,
+  Menu,
+  X,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import {
@@ -56,7 +56,7 @@ export function DashboardLayout({
   return (
     <div className="h-screen w-full flex flex-col bg-linear-to-br from-amber-50 via-orange-50 to-amber-100 dark:bg-linear-to-br dark:from-neutral-900 dark:via-gray-900 dark:to-neutral-950 dark:text-neutral-100">
       {/* Header (Top Bar, like ChatGPT) */}
-      {/* <header className="flex items-center justify-between px-4 sm:px-10 h-16 border-b border-amber-200 bg-white/70 dark:bg-neutral-900/80 dark:border-neutral-800 backdrop-blur sticky top-0 z-20">
+      <header className="flex items-center justify-between px-4 sm:px-10 h-16 border-b border-amber-200 bg-white/70 dark:bg-neutral-900/80 dark:border-neutral-800 backdrop-blur sticky top-0 z-20">
         <div className="flex items-center gap-3">
           <Sparkles className="w-7 h-7 text-amber-500 dark:text-yellow-300" />
           <span className="font-bold text-xl text-amber-900 dark:text-yellow-100 tracking-tight">
@@ -99,7 +99,7 @@ export function DashboardLayout({
             <Menu className="w-7 h-7" />
           )}
         </button>
-      </header> */}
+      </header>
 
       {/* Main Layout Flex Row */}
       <div className="flex flex-1 min-h-0">

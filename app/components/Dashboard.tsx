@@ -16,7 +16,7 @@ export default function Dashboard() {
   const renderView = () => {
     switch (currentView) {
       case "predict":
-        return <PredictionView />;
+      return <PredictionView />;
       case "history":
       return <HistoryView />;
       case "credits":
@@ -24,9 +24,9 @@ export default function Dashboard() {
       case "settings":
       return <SettingsView />;
       case "admin":
-        return profile?.is_admin ? <AdminView /> : <PredictionView />;
+      return profile?.is_admin ? <AdminView /> : <PredictionView />;
       default:
-        return <PredictionView />;
+      return <PredictionView />;
     }
   };
   return (

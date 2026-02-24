@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   AlertCircle,
+  CreditCard,
   Loader2,
+  MessageCircle,
+  Settings,
+  Shield,
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
@@ -40,6 +44,7 @@ export function PredictionView() {
   const [error, setError] = useState("");
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+ 
 
   // Scroll to bottom of chat on new message
   useEffect(() => {
