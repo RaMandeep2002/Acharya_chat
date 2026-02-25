@@ -21,15 +21,15 @@ export const metadata: Metadata = {
   icons: [
     {
       rel: "icon",
-      url: "/logo.png", // Place your logo at public/logo.svg
+      url: "/logo.svg", // Place your logo at public/logo.svg
       type: "image/svg+xml"
     },
     // Optionally, a shortcut icon (favicon)
-    {
-      rel: "shortcut icon",
-      url: "/favicon.ico",
-      type: "image/x-icon"
-    }
+    // {
+    //   rel: "shortcut icon",
+    //   url: "/favicon.ico",
+    //   type: "image/x-icon"
+    // }
   ]
 };
 
