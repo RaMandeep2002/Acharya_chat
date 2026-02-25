@@ -92,7 +92,11 @@ export function DashboardLayout({
   const baseNav = [
     { id: "predict" as ViewType, name: "Chat", icon: MessageCircle },
     { id: "history" as ViewType, name: "History", icon: History },
-    { id: "credits" as ViewType, name: "Buy Credits", icon: CreditCard },
+    // Show "Buy Credits" only when the user's credits are out (<= 0 or null/undefined)
+    ...(profile?.credits && profile.credits > 0
+      ? []
+      : [{ id: "credits" as ViewType, name: "Buy Credits", icon: CreditCard }]
+    ),
     { id: "settings" as ViewType, name: "Settings", icon: Settings },
   ];
   const adminNav = { id: "admin" as ViewType, name: "Admin", icon: Shield };

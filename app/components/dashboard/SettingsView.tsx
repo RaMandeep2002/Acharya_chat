@@ -55,6 +55,7 @@ export default function SettingsView() {
   };
   return (
     <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm m-4">
+      {/* <div className="max-w-4xl"> */}
       <div className="border-b border-gray-200 dark:border-neutral-800 px-8 py-6">
         <h2 className="text-2xl font-bold text-amber-900 dark:text-yellow-100 flex items-center gap-2">
           <Settings className="w-7 h-7" />
@@ -201,7 +202,7 @@ export default function SettingsView() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-amber-600 dark:bg-yellow-700 text-white dark:text-neutral-900 py-3 rounded-lg font-medium hover:bg-amber-700 dark:hover:bg-yellow-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-amber-600 dark:bg-yellow-700 py-3 rounded-lg font-medium hover:bg-amber-700 dark:hover:bg-yellow-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading ? (
             <>
@@ -213,6 +214,7 @@ export default function SettingsView() {
           )}
         </button>
       </form>
+      {/* </div> */}
     </div>
   );
 }

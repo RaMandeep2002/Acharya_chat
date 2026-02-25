@@ -13,22 +13,25 @@ export default function Dashboard() {
   const [currentView, setCurrentView] = useState<
     "predict" | "history" | "credits" | "settings" | "admin"
   >("predict");
+
+
   const renderView = () => {
     switch (currentView) {
       case "predict":
-      return <PredictionView />;
+        return <PredictionView />;
       case "history":
-      return <HistoryView />;
+        return <HistoryView />;
       case "credits":
-      return <CreditsView />;
+        return <CreditsView />;
       case "settings":
-      return <SettingsView />;
+        return <SettingsView />;
       case "admin":
-      return profile?.is_admin ? <AdminView /> : <PredictionView />;
+        return profile?.is_admin ? <AdminView /> : <PredictionView />;
       default:
-      return <PredictionView />;
+        return <PredictionView />;
     }
   };
+
   return (
     <DashboardLayout currentView={currentView} onViewChange={setCurrentView}>
       {renderView()}
