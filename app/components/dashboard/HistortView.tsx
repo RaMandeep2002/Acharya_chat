@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { History, Loader2, Clock, Tag } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/context/AuthContext';
+import ReactMarkdown from "react-markdown";
 
 // Define the shape of the prediction_content
 interface PredictionContent {
@@ -162,8 +163,8 @@ function SimpleAIPredictionDisplay({
         <h2 className="text-3xl font-bold mb-2">Your Message</h2>
       </div>
       <div className="p-8">
-        <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300 whitespace-pre-line text-lg">
-          {predictionContent.aiContent}
+        <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300 whitespace-pre-line text-md">
+          <ReactMarkdown>{predictionContent.aiContent}</ReactMarkdown>
         </div>
       </div>
     </div>

@@ -143,47 +143,47 @@ export function DashboardLayout({
           <div className="flex-1" />
           {/* Sign out (bottom left) */}
           <div>
-           <div>
-             <DropdownMenu>
-               <DropdownMenuTrigger asChild>
-                 <Button
-                   variant="ghost"
-                   size="lg"
-                   className="relative w-full flex items-center justify-center rounded-full border border-amber-200 dark:border-yellow-700 bg-amber-50 dark:bg-neutral-900 hover:bg-amber-100 dark:hover:bg-yellow-900 transition-all shadow focus:ring-2 focus:ring-amber-400 dark:focus:ring-yellow-400 mb-2"
-                   aria-label="Toggle theme"
-                 >
-                   <span className="relative flex items-center w-7 h-7">
-                     <Sun className="h-full w-full text-amber-500 dark:text-yellow-400 transition-all duration-300 scale-100 rotate-0 dark:scale-0 dark:-rotate-90" />
-                     <Moon className="absolute h-full w-full text-amber-600 dark:text-yellow-200 transition-all duration-300 scale-0 rotate-90 dark:scale-100 dark:rotate-0" />
-                   </span>
-                   <span className="sr-only">Toggle theme</span>
-                 </Button>
-               </DropdownMenuTrigger>
-               <DropdownMenuContent
-                 align="center"
-                 className="max-w-full bg-white border-amber-200 dark:bg-neutral-900 dark:border-yellow-700 shadow-xl rounded-lg"
-               >
-                 <DropdownMenuItem 
-                   onClick={() => setTheme("light")}
-                   className="text-amber-700 dark:text-yellow-300 hover:bg-amber-100 dark:hover:bg-neutral-800"
-                 >
-                   Light
-                 </DropdownMenuItem>
-                 <DropdownMenuItem 
-                   onClick={() => setTheme("dark")}
-                   className="text-amber-800 dark:text-yellow-200 hover:bg-amber-100 dark:hover:bg-neutral-800"
-                 >
-                   Dark
-                 </DropdownMenuItem>
-                 <DropdownMenuItem 
-                   onClick={() => setTheme("system")}
-                   className="text-amber-600 dark:text-yellow-500 hover:bg-amber-100 dark:hover:bg-neutral-800"
-                 >
-                   System
-                 </DropdownMenuItem>
-               </DropdownMenuContent>
-             </DropdownMenu>
-           </div>
+            <div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="relative w-full flex items-center justify-center rounded-full border border-amber-200 dark:border-yellow-700 bg-amber-50 dark:bg-neutral-900 hover:bg-amber-100 dark:hover:bg-yellow-900 transition-all shadow focus:ring-2 focus:ring-amber-400 dark:focus:ring-yellow-400 mb-2"
+                    aria-label="Toggle theme"
+                  >
+                    <span className="relative flex items-center w-7 h-7">
+                      <Sun className="h-full w-full text-amber-500 dark:text-yellow-400 transition-all duration-300 scale-100 rotate-0 dark:scale-0 dark:-rotate-90" />
+                      <Moon className="absolute h-full w-full text-amber-600 dark:text-yellow-200 transition-all duration-300 scale-0 rotate-90 dark:scale-100 dark:rotate-0" />
+                    </span>
+                    <span className="sr-only">Toggle theme</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="center"
+                  className="max-w-full bg-white border-amber-200 dark:bg-neutral-900 dark:border-yellow-700 shadow-xl rounded-lg"
+                >
+                  <DropdownMenuItem
+                    onClick={() => setTheme("light")}
+                    className="text-amber-700 dark:text-yellow-300 hover:bg-amber-100 dark:hover:bg-neutral-800"
+                  >
+                    Light
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setTheme("dark")}
+                    className="text-amber-800 dark:text-yellow-200 hover:bg-amber-100 dark:hover:bg-neutral-800"
+                  >
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setTheme("system")}
+                    className="text-amber-600 dark:text-yellow-500 hover:bg-amber-100 dark:hover:bg-neutral-800"
+                  >
+                    System
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <div>
               <button
                 onClick={() => signOut()}
@@ -245,54 +245,54 @@ export function DashboardLayout({
               <div className="flex-1" />
 
               <div>
-              <div>
-             <DropdownMenu>
-               <DropdownMenuTrigger asChild>
-                 <Button
-                   variant="ghost"
-                   size="lg"
-                   className="relative w-full flex items-center justify-center rounded-full border border-amber-200 dark:border-yellow-700 bg-amber-50 dark:bg-neutral-900 hover:bg-amber-100 dark:hover:bg-yellow-900 transition-all shadow focus:ring-2 focus:ring-amber-400 dark:focus:ring-yellow-400 mb-2"
-                   aria-label="Toggle theme"
-                 >
-                   <span className="relative flex items-center w-7 h-7">
-                     <Sun className="h-full w-full text-amber-500 dark:text-yellow-400 transition-all duration-300 scale-100 rotate-0 dark:scale-0 dark:-rotate-90" />
-                     <Moon className="absolute h-full w-full text-amber-600 dark:text-yellow-200 transition-all duration-300 scale-0 rotate-90 dark:scale-100 dark:rotate-0" />
-                   </span>
-                   <span className="sr-only">Toggle theme</span>
-                 </Button>
-               </DropdownMenuTrigger>
-               <DropdownMenuContent
-                 align="center"
-                 className="max-w-full bg-white border-amber-200 dark:bg-neutral-900 dark:border-yellow-700 shadow-xl rounded-lg"
-               >
-                 <DropdownMenuItem 
-                   onClick={() => setTheme("light")}
-                   className="text-amber-700 dark:text-yellow-300 hover:bg-amber-100 dark:hover:bg-neutral-800"
-                 >
-                   Light
-                 </DropdownMenuItem>
-                 <DropdownMenuItem 
-                   onClick={() => setTheme("dark")}
-                   className="text-amber-800 dark:text-yellow-200 hover:bg-amber-100 dark:hover:bg-neutral-800"
-                 >
-                   Dark
-                 </DropdownMenuItem>
-                 <DropdownMenuItem 
-                   onClick={() => setTheme("system")}
-                   className="text-amber-600 dark:text-yellow-500 hover:bg-amber-100 dark:hover:bg-neutral-800"
-                 >
-                   System
-                 </DropdownMenuItem>
-               </DropdownMenuContent>
-             </DropdownMenu>
-           </div>
-              <button
-                onClick={() => signOut()}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 dark:text-neutral-300 hover:bg-red-50 dark:hover:bg-red-900 hover:text-red-600 dark:hover:text-red-400 text-sm font-medium transition-all mb-2"
-              >
-                <LogOut className="w-5 h-5" />
-                Sign Out
-              </button>
+                <div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        className="relative w-full flex items-center justify-center rounded-full border border-amber-200 dark:border-yellow-700 bg-amber-50 dark:bg-neutral-900 hover:bg-amber-100 dark:hover:bg-yellow-900 transition-all shadow focus:ring-2 focus:ring-amber-400 dark:focus:ring-yellow-400 mb-2"
+                        aria-label="Toggle theme"
+                      >
+                        <span className="relative flex items-center w-7 h-7">
+                          <Sun className="h-full w-full text-amber-500 dark:text-yellow-400 transition-all duration-300 scale-100 rotate-0 dark:scale-0 dark:-rotate-90" />
+                          <Moon className="absolute h-full w-full text-amber-600 dark:text-yellow-200 transition-all duration-300 scale-0 rotate-90 dark:scale-100 dark:rotate-0" />
+                        </span>
+                        <span className="sr-only">Toggle theme</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="center"
+                      className="max-w-full bg-white border-amber-200 dark:bg-neutral-900 dark:border-yellow-700 shadow-xl rounded-lg"
+                    >
+                      <DropdownMenuItem
+                        onClick={() => setTheme("light")}
+                        className="text-amber-700 dark:text-yellow-300 hover:bg-amber-100 dark:hover:bg-neutral-800"
+                      >
+                        Light
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setTheme("dark")}
+                        className="text-amber-800 dark:text-yellow-200 hover:bg-amber-100 dark:hover:bg-neutral-800"
+                      >
+                        Dark
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setTheme("system")}
+                        className="text-amber-600 dark:text-yellow-500 hover:bg-amber-100 dark:hover:bg-neutral-800"
+                      >
+                        System
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <button
+                  onClick={() => signOut()}
+                  className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 dark:text-neutral-300 hover:bg-red-50 dark:hover:bg-red-900 hover:text-red-600 dark:hover:text-red-400 text-sm font-medium transition-all mb-2"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Sign Out
+                </button>
               </div>
             </aside>
           </div>
