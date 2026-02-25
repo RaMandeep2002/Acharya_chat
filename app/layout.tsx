@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Acharya – Jyotish AI Assistant",
-  description: "Acharya is your AI-powered Jyotish (Vedic astrology) assistant. Chat, explore predictions, track history, manage your profile, and buy credits for in-depth insights—all in a beautiful, faith-aware user dashboard.",
+  title: "Acharya – Jyotish",
+  description: "Acharya is your Jyotish (Vedic astrology) assistant. Chat, explore predictions, track history, manage your profile, and buy credits for in-depth insights—all in a beautiful, faith-aware user dashboard.",
   icons: [
     {
       rel: "icon",
