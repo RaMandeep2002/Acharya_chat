@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   icons: [
     {
       rel: "icon",
-      url: "/logo.svg", // Place your logo at public/logo.svg
+      url: "/logo.png", // Place your logo at public/logo.svg
       type: "image/svg+xml"
     },
     // Optionally, a shortcut icon (favicon)

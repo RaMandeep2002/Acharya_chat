@@ -16,10 +16,12 @@ export async function POST(req: Request) {
         const response = await genAI.models.generateContent({
             model: "gemini-2.5-flash",
             contents: [
+                // {"role":"system","parts":[{"text":"You are a traditional Vedic astrologer. Provide structured analysis in sections: Career, Marriage, Health."}]},
                 {
                     role: "user",
                     parts: [{ text: prompt }],
                 },
+                {"role":"model","parts":[{"text":"Mars in the 7th house may indicate strong passion in relationships..."}]}
             ],
             config: {
                 // maxOutputTokens:1000,
