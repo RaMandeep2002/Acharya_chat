@@ -78,7 +78,7 @@ export function HistoryView() {
 
   if (selectedPrediction) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 p-2">
         <button
           onClick={() => setSelectedPrediction(null)}
           className="text-amber-600 dark:text-yellow-400 hover:text-amber-700 dark:hover:text-yellow-200 font-medium"
@@ -91,7 +91,7 @@ export function HistoryView() {
   }
 
   return (
-    <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm">
+    <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-4">
       <div className="border-b border-gray-200 dark:border-neutral-800 px-8 py-6">
         <h2 className="text-2xl font-bold text-amber-900 dark:text-yellow-100 flex items-center gap-2">
           <History className="w-7 h-7" />
