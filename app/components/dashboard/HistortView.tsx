@@ -1,14 +1,32 @@
 import { useEffect, useState } from 'react';
-
 import { History, Loader2, Clock, Tag } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/app/context/AuthContext';
+
+// Define the shape of the prediction_content
+interface PredictionContent {
+  hook: string;
+  remedy: string;
+  metadata: {
+    age: number;
+    dob: string;
+    faith: string;
+    category: string;
+    userName: string;
+    timestamp: string;
+  };
+  protocol: string;
+  velocity: string;
+  aiContent: string;
+  diagnosis: string;
+  goldenWindow: string;
+}
 
 interface Prediction {
   id: string;
   query: string;
   query_category: string;
-  prediction_content: any;
+  prediction_content: PredictionContent;
   created_at: string;
 }
 
@@ -20,6 +38,7 @@ export function HistoryView() {
 
   useEffect(() => {
     loadHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
   const loadHistory = async () => {
@@ -33,17 +52,18 @@ export function HistoryView() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPredictions(
-        (data || []).map((item) => ({
-          ...item,
-          created_at: item.created_at ?? "", // ensure created_at is always a string
-        })) as Prediction[]
-      );
+      const formattedPredictions: Prediction[] = (data || []).map((item) => ({
+        id: item.id,
+        query: item.query,
+        query_category: item.query_category,
+        created_at: item.created_at ?? '',
+        prediction_content: item.prediction_content as unknown as PredictionContent,
+      }));
+      setPredictions(formattedPredictions);
     } catch (error) {
       console.error('Error loading history:', error);
     } finally {
       setLoading(false);
-
     }
   };
 
@@ -64,7 +84,7 @@ export function HistoryView() {
         >
           ← Back to History
         </button>
-        <PredictionDisplay prediction={selectedPrediction.prediction_content} />
+        <SimpleAIPredictionDisplay predictionContent={selectedPrediction.prediction_content} />
       </div>
     );
   }
@@ -130,65 +150,21 @@ export function HistoryView() {
   );
 }
 
-function PredictionDisplay({ prediction }: { prediction: any }) {
+// Simple display to show the AI content as the main message
+function SimpleAIPredictionDisplay({
+  predictionContent,
+}: {
+  predictionContent: PredictionContent;
+}) {
   return (
     <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm overflow-hidden">
-      <div className="bg-linear-to-r from-amber-600 to-orange-600 dark:bg-gradient-to-r dark:from-yellow-800 dark:to-yellow-700 px-8 py-6 text-white dark:text-yellow-50">
-        <h2 className="text-3xl font-bold mb-2">Your Vedic Roadmap</h2>
-        <p className="text-amber-100 dark:text-yellow-200">
-          {/* {prediction.metadata.userName}, {prediction.metadata.age} years */}
-        </p>
+      <div className="bg-linear-to-r from-amber-600 to-orange-600 dark:bg-linear-to-r dark:from-yellow-800 dark:to-yellow-700 px-8 py-6 text-white dark:text-yellow-50">
+        <h2 className="text-3xl font-bold mb-2">Your Message</h2>
       </div>
-
-      <div className="p-8 space-y-8">
-        <section>
-          <h3 className="text-2xl font-bold text-amber-900 dark:text-yellow-100 mb-4">
-            1. THE DIAGNOSIS
-          </h3>
-          <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300">
-            {prediction.diagnosis}
-          </div>
-        </section>
-
-        <section>
-          <h3 className="text-2xl font-bold text-amber-900 dark:text-yellow-100 mb-4">
-            2. VELOCITY CHECK
-          </h3>
-          <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300 whitespace-pre-line">
-            {prediction.velocity}
-          </div>
-        </section>
-
-        <section>
-          <h3 className="text-2xl font-bold text-amber-900 dark:text-yellow-100 mb-4">
-            3. THE GOLDEN WINDOW
-          </h3>
-          <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300 whitespace-pre-line">
-            {prediction.goldenWindow}
-          </div>
-        </section>
-
-        <section>
-          <h3 className="text-2xl font-bold text-amber-900 dark:text-yellow-100 mb-4">
-            4. THE PROTOCOL
-          </h3>
-          <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300 whitespace-pre-line">
-            {prediction.protocol}
-          </div>
-        </section>
-
-        <section className="bg-amber-50 dark:bg-neutral-800 -mx-8 -mb-8 px-8 py-6">
-          <h3 className="text-2xl font-bold text-amber-900 dark:text-yellow-100 mb-4">
-            5. KARMIC REMEDY
-          </h3>
-          <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300 mb-6 whitespace-pre-line">
-            {prediction.remedy}
-          </div>
-          <div className="bg-linear-to-r from-amber-600 to-orange-600 dark:bg-gradient-to-r dark:from-yellow-800 dark:to-yellow-700 text-white dark:text-yellow-50 p-6 rounded-lg">
-            <p className="font-bold mb-2">THE VAULT IS LOCKED:</p>
-            <p>{prediction.hook}</p>
-          </div>
-        </section>
+      <div className="p-8">
+        <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300 whitespace-pre-line text-lg">
+          {predictionContent.aiContent}
+        </div>
       </div>
     </div>
   );

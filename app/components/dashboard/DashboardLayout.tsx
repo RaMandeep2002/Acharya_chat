@@ -299,19 +299,8 @@ export function DashboardLayout({
         )}
 
         {/* Main conversation area */}
-        <main className="relative flex-1 flex flex-col overflow-hidden w-full min-h-0">
-          <div
-            className="
-              flex flex-col h-full max-h-full overflow-y-auto
-              sm:p-4
-              sm:gap-4 gap-2
-              w-full
-              bg-white/95 dark:bg-neutral-950/85
-              transition-all
-              rounded-none sm:rounded-xl
-              sm:shadow-sm
-            "
-          >
+        <main className="relative flex-1 flex flex-col overflow-hidden">
+          <div className="flex flex-col h-full max-h-full overflow-y-auto">
             {children}
           </div>
         </main>
