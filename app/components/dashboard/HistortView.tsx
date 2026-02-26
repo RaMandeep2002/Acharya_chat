@@ -60,6 +60,7 @@ export function HistoryView() {
         created_at: item.created_at ?? '',
         prediction_content: item.prediction_content as unknown as PredictionContent,
       }));
+      console.log("formattedPredictions -----------> ", formattedPredictions)
       setPredictions(formattedPredictions);
     } catch (error) {
       console.error('Error loading history:', error);
@@ -164,7 +165,59 @@ function SimpleAIPredictionDisplay({
       </div>
       <div className="p-8">
         <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300 whitespace-pre-line text-md">
-          <ReactMarkdown>{predictionContent.aiContent}</ReactMarkdown>
+          <ReactMarkdown
+           components={{
+            h1: ({ ...props }) => (
+              <h1
+                className="text-4xl font-black tracking-tight mb-8 mt-4 text-amber-900 dark:text-yellow-100 border-b-4 border-amber-400 dark:border-yellow-800 pb-3 bg-amber-50/40 dark:bg-yellow-900/30 rounded-t-xl shadow-inner drop-shadow-sm"
+                {...props}
+              />
+            ),
+            h2: ({ ...props }) => (
+              <h2
+                className="text-2xl font-bold mt-10 mb-6 text-amber-700 dark:text-yellow-300 border-b-2 border-amber-200 dark:border-yellow-700 pb-2 bg-amber-100/50 dark:bg-yellow-950/10 rounded-t shadow"
+                {...props}
+              />
+            ),
+            h3: ({ ...props }) => (
+              <h3
+                className="text-lg font-semibold mt-7 mb-3 text-amber-700 dark:text-yellow-300 pl-2 border-l-4 border-amber-400 dark:border-yellow-700 bg-amber-50/30 dark:bg-yellow-900/10"
+                {...props}
+              />
+            ),
+            p: ({ ...props }) => (
+              <p
+                className="text-md sm:text-lg text-gray-800 dark:text-neutral-200 leading-relaxed my-3"
+                {...props}
+              />
+            ),
+            ul: ({ ...props }) => (
+              <ul className="list-disc list-inside ml-6 mb-4 pl-2 space-y-1 marker:text-amber-600 dark:marker:text-yellow-300" {...props} />
+            ),
+            ol: ({ ...props }) => (
+              <ol className="list-decimal list-inside ml-6 mb-4 pl-2 space-y-1 marker:text-amber-600 dark:marker:text-yellow-300" {...props} />
+            ),
+            li: ({ ...props }) => <li className="mb-1 pl-1" {...props} />,
+            strong: ({ ...props }) => (
+              <strong
+                className="font-extrabold text-amber-800 dark:text-yellow-200"
+                {...props}
+              />
+            ),
+            em: ({ ...props }) => (
+              <em
+                className="italic font-medium text-amber-700 dark:text-yellow-300 underline decoration-amber-400 dark:decoration-yellow-300"
+                {...props}
+              />
+            ),
+            blockquote: ({ ...props }) => (
+              <blockquote
+                className="border-l-8 border-amber-400 dark:border-yellow-500 pl-7 italic text-amber-900 dark:text-yellow-100 bg-amber-50 dark:bg-neutral-900 py-3 my-6 rounded-md shadow-md"
+                {...props}
+              />
+            ),
+          }}
+          >{predictionContent.aiContent}</ReactMarkdown>
         </div>
       </div>
     </div>
