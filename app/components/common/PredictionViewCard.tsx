@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 
 export default function PredictionCardView({ content }: { content: string }) {
   return (
-    <div className="prose prose-lg max-w-none text-md">
+    <div className="prose prose-lg max-w-none m-2 md:m-0">
       <ReactMarkdown
         components={{
           h1: ({ ...props }) => (
@@ -21,23 +21,23 @@ export default function PredictionCardView({ content }: { content: string }) {
           ),
           h3: ({ ...props }) => (
             <h3
-              className="text-xl font-semibold mt-6 mb-3 text-amber-700 dark:text-yellow-300"
+              className=" font-semibold mt-6 mb-3 text-amber-700 dark:text-yellow-300"
               {...props}
             />
           ),
           p: ({ ...props }) => (
-            <p
-              className="text-gray-800 dark:text-neutral-200 leading-7 mb-4"
-              {...props}
-            />
+            <p className="text-gray-800 dark:text-neutral-200" {...props} />
           ),
           ul: ({ ...props }) => (
             <ul className="list-disc list-outside ml-6 mb-4" {...props} />
           ),
           ol: ({ ...props }) => (
-            <ol className="list-decimal list-outside ml-6 mb-4" {...props} />
+            <ol
+              className="list-decimal list-outside ml-6 mt-1 mb-1"
+              {...props}
+            />
           ),
-          li: ({ ...props }) => <li className="mb-1" {...props} />,
+          li: ({ ...props }) => <li className="mb-2" {...props} />,
           strong: ({ ...props }) => (
             <strong
               className="font-bold text-amber-800 dark:text-yellow-200"

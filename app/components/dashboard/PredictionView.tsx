@@ -1,11 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   AlertCircle,
-  CreditCard,
   Loader2,
-  MessageCircle,
-  Settings,
-  Shield,
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
@@ -261,11 +257,11 @@ User Query Context:
       >
         {chat.length === 0 ? (
           <div className="flex flex-col items-start animate-fadeIn group">
-            <div className="relative max-w-2xl inline-block bg-white dark:bg-gray-900 ml-10 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm">
+            <div className="relative max-w-2xl inline-block bg-white dark:bg-gray-900 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm">
               <span>Hey {profile?.full_name}! What&apos;s on your mind?</span>
             </div>
             <div className="flex items-center gap-2 mt-1 pl-1">
-              <span className="w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center text-base font-medium text-white shrink-0">
+              <span className="w-6 h-6 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-white shrink-0">
                 A
               </span>
               <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -279,16 +275,16 @@ User Query Context:
             msg.type === "user" ? (
               <div
                 key={chat.length - 1 - i}
-                className="flex flex-col items-end animate-fadeIn group"
+                className="flex flex-col items-end animate-fadeIn group mb-4"
               >
-                <div className="relative max-w-lg inline-block bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 mr-10 px-4 py-3 rounded-lg rtl:rounded-bl-none ltr:rounded-br-none shadow-sm text-sm">
+                <div className="relative max-w-lg inline-block bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 mb-2 px-4 py-3 rounded-lg rtl:rounded-bl-none ltr:rounded-br-none shadow-sm text-sm">
                   <span>{msg.content}</span>
-                  {msg.category && (
+                  {/* {msg.category && (
                     <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
                       <span className="font-bold">Life Area: </span>
                       {msg.category}
                     </span>
-                  )}
+                  )} */}
                 </div>
                 <div className="flex items-center gap-2 mt-1 pr-1">
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -304,7 +300,7 @@ User Query Context:
                 key={chat.length - 1 - i}
                 className="flex flex-col items-start animate-fadeIn group"
               >
-                <div className="relative max-w-2xl inline-block bg-white dark:bg-gray-900 ml-10 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm">
+                <div className="relative max-w-xl inline-block bg-white dark:bg-gray-900 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm md:text-base">
                   {msg.isLoading ? (
                     <div className="flex items-center gap-2 text-gray-500">
                       <div className="flex gap-1">
@@ -334,7 +330,7 @@ User Query Context:
       {/* Question input at bottom - like a chat bar */}
       <form
         onSubmit={handlePredict}
-        className="bg-white dark:bg-neutral-900 border-t border-amber-100 dark:border-neutral-800 px-6 py-4 flex flex-col gap-3"
+        className="bg-white dark:bg-neutral-900 border-t border-amber-100 dark:border-neutral-800 px-6 py-4 pb-6 flex flex-col gap-3"
       >
         <div>
           <div className="flex items-center gap-2 mb-2">
