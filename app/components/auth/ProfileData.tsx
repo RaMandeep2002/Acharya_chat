@@ -95,7 +95,7 @@ export default function ProfileData() {
                     setFormData({ ...formData, full_name: e.target.value })
                   }
                   required
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-black dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
                   placeholder="Your full name"
                 />
               </div>
@@ -116,7 +116,7 @@ export default function ProfileData() {
                     }
                     required
                     max={new Date().toISOString().split("T")[0]}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-black dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
                   />
                 </div>
               </div>
@@ -133,7 +133,7 @@ export default function ProfileData() {
                     onChange={(e) =>
                       setFormData({ ...formData, birth_time: e.target.value })
                     }
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-black dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
                   />
                 </div>
               </div>
@@ -152,7 +152,7 @@ export default function ProfileData() {
                     setFormData({ ...formData, birth_place: e.target.value })
                   }
                   required
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-black dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
                   placeholder="City, Country"
                 />
               </div>
@@ -175,7 +175,7 @@ export default function ProfileData() {
                       : "border-gray-200 hover:border-gray-300 dark:border-zinc-700 dark:hover:border-zinc-500"
                   }`}
                 >
-                  <div className="font-medium dark:text-amber-200">Hinduism</div>
+                  <div className="font-medium text-black dark:text-amber-200">Hinduism</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     Vedic Mantras & Rituals
                   </div>
@@ -189,7 +189,7 @@ export default function ProfileData() {
                       : "border-gray-200 hover:border-gray-300 dark:border-zinc-700 dark:hover:border-zinc-500"
                   }`}
                 >
-                  <div className="font-medium dark:text-amber-200">Sikhism</div>
+                  <div className="font-medium text-black dark:text-amber-200">Sikhism</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">Gurbani & Seva</div>
                 </button>
               </div>
@@ -211,7 +211,7 @@ export default function ProfileData() {
                       : "border-gray-200 hover:border-gray-300 dark:border-zinc-700 dark:hover:border-zinc-500"
                   }`}
                 >
-                  <div className="font-medium dark:text-amber-200">INR (₹)</div>
+                  <div className="font-medium text-black dark:text-amber-200">INR (₹)</div>
                 </button>
                 <button
                   type="button"
@@ -224,7 +224,7 @@ export default function ProfileData() {
                       : "border-gray-200 hover:border-gray-300 dark:border-zinc-700 dark:hover:border-zinc-500"
                   }`}
                 >
-                  <div className="font-medium dark:text-amber-200">USD ($)</div>
+                  <div className="font-medium text-black dark:text-amber-200">USD ($)</div>
                 </button>
               </div>
             </div>
