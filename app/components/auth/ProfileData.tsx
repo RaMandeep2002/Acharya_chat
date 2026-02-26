@@ -50,7 +50,7 @@ export default function ProfileData() {
             birth_place: formData.birth_place,
             faith: formData.faith,
             display_currency: formData.display_currency,
-            credits: 1,
+            credits: 10,
           };
       const { error: insertError } = await supabase.from("profiles").insert(profile);
 
