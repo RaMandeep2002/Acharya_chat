@@ -102,7 +102,7 @@ export default function Authform() {
             {oauthLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <span className="inline-flex items-center justify-center w-6 h-6">
+              // <span className="inline-flex items-center justify-center w-6 h-6">
                 <svg className="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true">
                 <g>
                   <path fill="#4285F4" d="M24 9.5c3.54 0 6.55 1.22 8.71 3.25l6.46-6.45C34.37 2.53 29.7 0 24 0 14.82 0 6.81 5.91 2.99 14.44l7.52 5.84C12.5 14.08 17.78 9.5 24 9.
@@ -114,7 +114,7 @@ export default function Authform() {
                   <path fill="none" d="M0 0h48v48H0z"/>
                 </g>
               </svg>
-              </span>
+              // </span>
             )}
             {oauthLoading ? "Processing..." : "Continue with Google"}
           </button>
