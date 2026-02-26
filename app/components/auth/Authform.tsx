@@ -59,22 +59,22 @@ export default function Authform() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-amber-50 via-orange-50 to-amber-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-amber-50 via-orange-50 to-amber-100 dark:bg-linear-to-br dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-900 mb-2">Acharya</h1>
-          <p className="text-amber-700">Your Vedic Intelligence Engine</p>
+          <h1 className="text-4xl font-bold text-amber-900 dark:text-amber-300 mb-2">Acharya</h1>
+          <p className="text-amber-700 dark:text-amber-200">Your Vedic Intelligence Engine</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-zinc-800">
           <div className="flex gap-2 mb-6">
             <button
               type="button"
               onClick={() => setIsLogin(true)}
               className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
                 isLogin
-                  ? "bg-amber-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-amber-600 text-white dark:bg-amber-500 dark:text-zinc-900"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-200 dark:hover:bg-zinc-700"
               }`}
             >
               Sign In
@@ -84,8 +84,8 @@ export default function Authform() {
               onClick={() => setIsLogin(false)}
               className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
                 !isLogin
-                  ? "bg-amber-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-amber-600 text-white dark:bg-amber-500 dark:text-zinc-900"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-200 dark:hover:bg-zinc-700"
               }`}
             >
               Sign Up
@@ -96,7 +96,7 @@ export default function Authform() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={oauthLoading}
-            className="w-full flex items-center justify-center gap-3 py-3 mb-4 border rounded-lg font-medium transition-colors hover:bg-gray-50 bg-white text-gray-700 focus:outline-none disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-3 py-3 mb-4 border border-gray-200 dark:border-zinc-700 rounded-lg font-medium transition-colors hover:bg-gray-50 bg-white text-gray-700 focus:outline-none disabled:opacity-60 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-gray-200"
             aria-label="Sign in with Google"
           >
             {oauthLoading ? (
@@ -117,51 +117,51 @@ export default function Authform() {
 
           <div className="relative mb-3">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-200" />
+              <span className="w-full border-t border-gray-200 dark:border-zinc-700" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-white px-2 text-gray-400">or</span>
+              <span className="bg-white dark:bg-zinc-900 px-2 text-gray-400 dark:text-gray-400">or</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border text-black border-gray-300 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100"
                   placeholder="your@email.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                   className="w-full pl-10 pr-4 py-2 border text-black border-gray-300 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100"
                   placeholder="••••••••"
                 />
               </div>
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 dark:bg-rose-900/40 text-red-600 dark:text-rose-300 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -169,7 +169,7 @@ export default function Authform() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-600 text-white py-3 rounded-lg font-medium hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-amber-600 text-white py-3 rounded-lg font-medium hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-zinc-900"
             >
               {loading ? (
                 <>

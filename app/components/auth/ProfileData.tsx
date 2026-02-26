@@ -71,23 +71,23 @@ export default function ProfileData() {
       ? "Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh"
       : "Namaste";
   return (
-    <div className="min-h-screen bg-linear-to-br from-amber-50 via-orange-50 to-amber-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-amber-50 via-orange-50 to-amber-100 dark:bg-linear-to-br dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-900 mb-2">
+          <h1 className="text-4xl font-bold text-amber-900 mb-2 dark:text-amber-300">
             {faithGreeting}
           </h1>
-          <p className="text-amber-700">Complete Your Vedic Profile</p>
+          <p className="text-amber-700 dark:text-amber-200">Complete Your Vedic Profile</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 dark:bg-zinc-900 dark:border dark:border-zinc-800">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Full Name
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   value={formData.full_name}
@@ -95,7 +95,7 @@ export default function ProfileData() {
                     setFormData({ ...formData, full_name: e.target.value })
                   }
                   required
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
                   placeholder="Your full name"
                 />
               </div>
@@ -103,11 +103,11 @@ export default function ProfileData() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   Date of Birth
                 </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                   <input
                     type="date"
                     value={formData.dob}
@@ -116,35 +116,35 @@ export default function ProfileData() {
                     }
                     required
                     max={new Date().toISOString().split("T")[0]}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   Birth Time (Optional)
                 </label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                   <input
                     type="time"
                     value={formData.birth_time}
                     onChange={(e) =>
                       setFormData({ ...formData, birth_time: e.target.value })
                     }
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
                   />
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Birth Place
               </label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   value={formData.birth_place}
@@ -152,14 +152,14 @@ export default function ProfileData() {
                     setFormData({ ...formData, birth_place: e.target.value })
                   }
                   required
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-950 dark:text-gray-100 dark:border-zinc-700"
                   placeholder="City, Country"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 <Heart className="inline w-4 h-4 mr-1" />
                 Your Faith
               </label>
@@ -171,12 +171,12 @@ export default function ProfileData() {
                   }
                   className={`p-4 rounded-lg border-2 transition-all ${
                     formData.faith === "hinduism"
-                      ? "border-amber-600 bg-amber-50"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-amber-600 bg-amber-50 dark:bg-amber-900/20"
+                      : "border-gray-200 hover:border-gray-300 dark:border-zinc-700 dark:hover:border-zinc-500"
                   }`}
                 >
-                  <div className="font-medium">Hinduism</div>
-                  <div className="text-sm text-gray-600">
+                  <div className="font-medium dark:text-amber-200">Hinduism</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Vedic Mantras & Rituals
                   </div>
                 </button>
@@ -185,18 +185,18 @@ export default function ProfileData() {
                   onClick={() => setFormData({ ...formData, faith: "sikhism" })}
                   className={`p-4 rounded-lg border-2 transition-all ${
                     formData.faith === "sikhism"
-                      ? "border-amber-600 bg-amber-50"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-amber-600 bg-amber-50 dark:bg-amber-900/20"
+                      : "border-gray-200 hover:border-gray-300 dark:border-zinc-700 dark:hover:border-zinc-500"
                   }`}
                 >
-                  <div className="font-medium">Sikhism</div>
-                  <div className="text-sm text-gray-600">Gurbani & Seva</div>
+                  <div className="font-medium dark:text-amber-200">Sikhism</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Gurbani & Seva</div>
                 </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Currency Preference
               </label>
               <div className="grid grid-cols-2 gap-4">
@@ -207,11 +207,11 @@ export default function ProfileData() {
                   }
                   className={`p-3 rounded-lg border-2 transition-all ${
                     formData.display_currency === "INR"
-                      ? "border-amber-600 bg-amber-50"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-amber-600 bg-amber-50 dark:bg-amber-900/20"
+                      : "border-gray-200 hover:border-gray-300 dark:border-zinc-700 dark:hover:border-zinc-500"
                   }`}
                 >
-                  <div className="font-medium">INR (₹)</div>
+                  <div className="font-medium dark:text-amber-200">INR (₹)</div>
                 </button>
                 <button
                   type="button"
@@ -220,17 +220,17 @@ export default function ProfileData() {
                   }
                   className={`p-3 rounded-lg border-2 transition-all ${
                     formData.display_currency === "USD"
-                      ? "border-amber-600 bg-amber-50"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-amber-600 bg-amber-50 dark:bg-amber-900/20"
+                      : "border-gray-200 hover:border-gray-300 dark:border-zinc-700 dark:hover:border-zinc-500"
                   }`}
                 >
-                  <div className="font-medium">USD ($)</div>
+                  <div className="font-medium dark:text-amber-200">USD ($)</div>
                 </button>
               </div>
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm dark:bg-rose-900/40 dark:text-rose-300">
                 {error}
               </div>
             )}
@@ -238,7 +238,7 @@ export default function ProfileData() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-600 text-white py-3 rounded-lg font-medium hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-amber-600 text-white py-3 rounded-lg font-medium hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-zinc-900"
             >
               {loading ? (
                 <>
