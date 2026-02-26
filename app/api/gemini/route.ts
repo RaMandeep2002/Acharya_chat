@@ -1,4 +1,5 @@
 
+import { ACHARYA_MASTER_PROMPT } from "@/lib/acharyaPrompt";
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
@@ -13,15 +14,16 @@ export async function POST(req: Request) {
 
         console.log("prompt -------> ", prompt);
 
+        const combinedPrompt = `${ACHARYA_MASTER_PROMPT}\n\n${prompt}`;
+
         const response = await genAI.models.generateContent({
             model: "gemini-2.5-flash",
             contents: [
-                // {"role":"system","parts":[{"text":"You are a traditional Vedic astrologer. Provide structured analysis in sections: Career, Marriage, Health."}]},
                 {
                     role: "user",
-                    parts: [{ text: prompt }],
+                    parts: [{ text: combinedPrompt }],
                 },
-                {"role":"model","parts":[{"text":"Mars in the 7th house may indicate strong passion in relationships..."}]}
+                // {"role":"model","parts":[{"text":"Mars in the 7th house may indicate strong passion in relationships..."}]}
             ],
             config: {
                 // maxOutputTokens:1000,

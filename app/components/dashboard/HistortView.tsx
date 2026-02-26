@@ -3,6 +3,7 @@ import { History, Loader2, Clock, Tag } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/app/context/AuthContext";
 import ReactMarkdown from "react-markdown";
+// import { useRouter } from "next/navigation";
 
 // Define the shape of the prediction_content
 interface PredictionContent {
@@ -90,6 +91,8 @@ export function HistoryView() {
         </button>
         <SimpleAIPredictionDisplay
           predictionContent={selectedPrediction.prediction_content}
+          // query={selectedPrediction.query}
+          // category={selectedPrediction.query_category}
         />
       </div>
     );
@@ -163,13 +166,41 @@ export function HistoryView() {
 // Simple display to show the AI content as the main message
 function SimpleAIPredictionDisplay({
   predictionContent,
+  // query,
+  // category,
 }: {
   predictionContent: PredictionContent;
+  // query?: string;
+  // category?: string;
 }) {
+  // const router = useRouter();
+
+  // const handleContinueChat = () => {
+  //   // Go to the PredictionView, ideally pass along query and category as query params
+  //   // (You might adjust the navigation path depending on your router setup)
+  //   if (query && category) {
+  //     router.push(
+  //       `/dashboard?continue=1&query=${encodeURIComponent(query)}&category=${encodeURIComponent(
+  //         category,
+  //       )}`,
+  //     );
+  //   } else {
+  //     router.push("/dashboard");
+  //   }
+  // };
+
   return (
     <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm overflow-hidden">
-      <div className="bg-linear-to-r from-amber-600 to-orange-600 dark:bg-linear-to-r dark:from-yellow-800 dark:to-yellow-700 px-8 py-6 text-white dark:text-yellow-50">
+      <div className="bg-linear-to-r from-amber-600 to-orange-600 dark:bg-linear-to-r dark:from-yellow-800 dark:to-yellow-700 px-8 py-6 text-white dark:text-yellow-50 flex justify-between items-center">
         <h2 className="text-3xl font-bold mb-2">Your Message</h2>
+        {/* {query && category && (
+          <button
+            onClick={handleContinueChat}
+            className="ml-auto bg-amber-700 hover:bg-amber-800 text-white dark:bg-yellow-700 dark:hover:bg-yellow-600 rounded-lg px-4 py-2 font-medium shadow transition"
+          >
+            Continue Chat
+          </button>
+        )} */}
       </div>
       <div className="p-8">
         <div className="prose prose-amber max-w-none text-gray-700 dark:text-neutral-300 whitespace-pre-line text-md">
