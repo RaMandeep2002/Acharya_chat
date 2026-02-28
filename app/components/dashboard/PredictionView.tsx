@@ -83,7 +83,10 @@ export function PredictionView() {
       try {
         arr = JSON.parse(data.text);
         if (!Array.isArray(arr)) throw new Error("Not array");
-        return arr.map((q) => String(q)).filter(Boolean);
+        // Remove any trailing semicolon from each question string
+        return arr
+          .map((q) => String(q).replace(/;$/, "")) // remove semicolon at the end if present
+          .filter(Boolean);
       } catch (e) {
         const errorMessage =
         e instanceof Error ? e.message : "Failed to generate prediction";
