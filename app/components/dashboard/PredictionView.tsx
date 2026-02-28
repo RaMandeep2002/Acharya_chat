@@ -61,7 +61,7 @@ export function PredictionView() {
         .join("\n");
 
       const categoriesPrompt = `
-          Using the short chat provided, suggest 6-8 personalized, interesting follow-up questions that can help the user explore further. Keep each question concise, between 10 and 20 words. Output only a JSON array of questions.
+          Using the short chat provided, suggest 6-8 personalized, interesting follow-up questions that can help the user explore further. Keep each question concise, between 5 and 10 words. Output only a JSON array of questions.
           User Details:
           - Name: ${profile.full_name || "User"}
           - Faith: ${profile.faith || "Universal"}
@@ -79,6 +79,7 @@ export function PredictionView() {
       });
       if (!res.ok) return [];
       const data = await res.json();
+      console.log("data ====> ", data)
       let arr: string[] = [];
       try {
         arr = JSON.parse(data.text);
