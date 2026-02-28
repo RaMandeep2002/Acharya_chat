@@ -238,7 +238,12 @@ User Query Context:
         content: aiContent,
       };
       const updatedChat: ChatMessage[] = [...chat, userMessage, aiMessage];
-      const aiQuestions = await fetchAIGeneratedQuestions(updatedChat);
+      let aiQuestions = await fetchAIGeneratedQuestions(updatedChat);
+
+      // Remove any trailing semicolon from each question
+      if (Array.isArray(aiQuestions)) {
+        aiQuestions = aiQuestions.map((q: string) => q.replace(/;$/, ""));
+      }
 
       setCategories(aiQuestions || []);
     } catch (err: unknown) {
