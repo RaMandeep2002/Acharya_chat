@@ -24,7 +24,9 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 
 // Properly type navigation union so "admin" is valid
-type ViewType = "predict" | "history" | "credits" | "settings" | "admin" | "self";
+type ViewType = "predict" | "history" | "credits" | "settings" | "admin" 
+// | "self"
+;
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -99,7 +101,7 @@ export function DashboardLayout({
       : [{ id: "credits" as ViewType, name: "Buy Credits", icon: CreditCard }]
     ),
     { id: "settings" as ViewType, name: "Settings", icon: Settings },
-    { id: "self" as ViewType, name: "Self", icon: UserCheck },
+    // { id: "self" as ViewType, name: "Self", icon: UserCheck },
   ];
   const adminNav = { id: "admin" as ViewType, name: "Admin", icon: Shield };
   const navigation = profile?.is_admin ? [...baseNav, adminNav] : baseNav;

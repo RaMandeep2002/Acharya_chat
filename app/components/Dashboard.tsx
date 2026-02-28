@@ -12,7 +12,9 @@ import SettingsView from "./dashboard/SettingsView";
 export default function Dashboard() {
   const { profile } = useAuth();
   const [currentView, setCurrentView] = useState<
-    "predict" | "history" | "credits" | "settings" | "admin" | "self"
+    "predict" | "history" | "credits" | "settings" | "admin" 
+    // | 
+    // "self"
   >("predict");
 
 
