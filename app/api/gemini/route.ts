@@ -1,5 +1,4 @@
 
-import { ACHARYA_MASTER_PROMPT } from "@/lib/acharyaPrompt";
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
@@ -12,27 +11,41 @@ export async function POST(req: Request) {
     try {
         const { prompt } = await req.json();
 
-        console.log("prompt -------> ", prompt);
-
-        const combinedPrompt = `${ACHARYA_MASTER_PROMPT}\n\n${prompt}`;
+        console.log("Received prompt: ", prompt);
 
         const response = await genAI.models.generateContent({
             model: "gemini-2.5-flash",
             contents: [
                 {
                     role: "user",
-                    parts: [{ text: combinedPrompt }],
+                    parts: [{ text: prompt }],
                 },
-                // {"role":"model","parts":[{"text":"Mars in the 7th house may indicate strong passion in relationships..."}]}
             ],
             config: {
-                // maxOutputTokens:1000,
-                temperature: 0.7,
+                maxOutputTokens: 2000,
+                // temperature: 0.7,
                 // topP: 0.9,
             },
         });
-        console.log(response.text)
-        const text = response.text;
+
+        // For GoogleGenAI, check where text is in the response:
+        // it may be under response.candidates[0].content.parts[0].text with recent SDKs,
+        // or you can use response.text if present.
+        let text = "";
+        if (response.text) {
+            text = response.text;
+        } else if (
+            response.candidates &&
+            response.candidates[0]?.content?.parts &&
+            response.candidates[0].content.parts[0]?.text
+        ) {
+            text = response.candidates[0].content.parts[0].text;
+        } else {
+            text = "";
+        }
+
+        console.log("AI response: ", text);
+
         return NextResponse.json({ text });
     }
     catch (error: unknown) {
@@ -44,4 +57,3 @@ export async function POST(req: Request) {
         );
     }
 }
-

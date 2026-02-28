@@ -1,26 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
-import {
-  AlertCircle,
-  Loader2,
-  Sparkles,
-} from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { AlertCircle, Loader2, Sparkles } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { supabase } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
 import PredictionCardView from "../common/PredictionViewCard";
+import { ACHARYA_MASTER_PROMPT } from "@/lib/acharyaPrompt";
 
-type predictionInsert = Database["public"]["Tables"]["predictions"]["Insert"];
-
-const CATEGORIES = [
-  "Career",
-  "Wealth",
-  "Health",
-  "Relationships",
-  "Education",
-  "Business",
-  "Spiritual Growth",
-  "Family",
-];
+type PredictionInsert = Database["public"]["Tables"]["predictions"]["Insert"];
 
 interface ChatMessage {
   type: "user" | "ai";
@@ -33,14 +19,26 @@ interface ChatMessage {
 
 export function PredictionView() {
   const { profile, refreshProfile } = useAuth();
-  const [query, setQuery] = useState("");
-  const [category, setCategory] =
-    useState<(typeof CATEGORIES)[number]>("Career");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [query, setQuery] = useState<string>("");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [category, setCategory] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const chatContainerRef = useRef<HTMLDivElement>(null);
- 
+  const [hasInitialized, setHasInitialized] = useState<boolean>(false);
+  const generateInitialHookCallCount = useRef<number>(0);
+
+  // Clear all states
+  const clearAll = useCallback(() => {
+    setQuery("");
+    setCategory("");
+    setLoading(false);
+    setError("");
+    setChat([]);
+    setHasInitialized(false);
+    setCategories([]);
+  }, []);
 
   // Scroll to bottom of chat on new message
   useEffect(() => {
@@ -50,31 +48,74 @@ export function PredictionView() {
     }
   }, [chat]);
 
-  // Call Gemini AI and get prediction
-  const getAIPrediction = async (
-    userQuery: string,
-    userCategory: string,
-  ): Promise<string> => {
-    // ACHARYA SYSTEM PROMPT — FEBRUARY 2026 & BEYOND
+  // Helper to fetch AI-generated questions based on chat so far
+  const fetchAIGeneratedQuestions = useCallback(
+    async (latestChat: ChatMessage[]) => {
+      if (!profile) return [];
+      const chatHistory = latestChat
+        .map((msg) =>
+          msg.type === "user"
+            ? `User: ${msg.content}`
+            : `Acharya: ${msg.content ?? ""}`,
+        )
+        .join("\n");
 
+      const categoriesPrompt = `
+          Using the short chat provided, suggest 6-8 personalized, interesting follow-up questions that can help the user explore further. Keep each question concise, between 10 and 20 words. Output only a JSON array of questions.
+          User Details:
+          - Name: ${profile.full_name || "User"}
+          - Faith: ${profile.faith || "Universal"}
+          - DOB: ${profile.dob || ""}
+          Recent Chat:
+          ${chatHistory}
+      `;
+
+      const res = await fetch("/api/gemini", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: categoriesPrompt }),
+      });
+      if (!res.ok) return [];
+      const data = await res.json();
+      let arr: string[] = [];
+      try {
+        arr = JSON.parse(data.text);
+        if (!Array.isArray(arr)) throw new Error("Not array");
+        return arr.map((q) => String(q)).filter(Boolean);
+      } catch (e) {
+        const errorMessage =
+        e instanceof Error ? e.message : "Failed to generate prediction";
+      setError(errorMessage);
+        // fallback: try to split by newlines
+        if (typeof data.text === "string") {
+          return data.text
+            .split("\n")
+            .map((q: string) => q.replace(/^[-*]\s*/, "").trim())
+            .filter((q: string) => q.length > 10);
+        }
+        return [];
+      }
+    },
+    [profile],
+  );
+
+  // Get the AI prediction
+  const getAIPrediction = async (userQuery: string): Promise<string> => {
+    if (!profile) throw new Error("No profile loaded");
     const prompt = `
 User Query Context:
-- Name: ${profile?.full_name || "User"}
-- Faith: ${profile?.faith || "Universal"}
-- DOB: ${profile?.dob || ""}
+- Name: ${profile.full_name || "User"}
+- Faith: ${profile.faith || "Universal"}
+- DOB: ${profile.dob || ""}
 - User Query: ${userQuery}
-- Category: ${userCategory}
-`;
-    console.log("prompt ----> ", prompt);
-
+    `;
     const res = await fetch("/api/gemini", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt: prompt }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
     });
-    console.log("res ----> ", res);
     if (!res.ok) {
       throw new Error(`AI Error: ${res.status} ${res.statusText}`);
     }
@@ -82,66 +123,73 @@ User Query Context:
     return data.text || "";
   };
 
-  // Handle Send
+  // Handle form submit, manages user sending a new question
   const handlePredict = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!profile || profile.credits < 1) {
-      setError("You do not have enough credits to ask a question.");
+      setError(
+        "You do not have enough credits to ask a question. Please purchase more credits to continue.",
+      );
       return;
     }
-    if (!query.trim()) return;
+    const questionToAsk = query.trim() || category.trim();
+    if (!questionToAsk) return;
 
     setLoading(true);
 
-    // Prepare and add user message to chat
-    const queryTime = new Date().toISOString();
     const userMessage: ChatMessage = {
       type: "user",
-      query,
-      category,
-      timestamp: queryTime,
-      content: query,
-    };
-
-    // 2️⃣ Add temporary AI loading message
-    const loadingMessage: ChatMessage = {
-      type: "ai",
+      query: questionToAsk,
+      category: category,
       timestamp: new Date().toISOString(),
-      content: "",
-      isLoading: true,
+      content: questionToAsk,
     };
 
-    setChat((prev) => [...prev, userMessage, loadingMessage]);
+    setChat((prev) => [
+      ...prev,
+      userMessage,
+      {
+        type: "ai",
+        timestamp: new Date().toISOString(),
+        content: "",
+        isLoading: true,
+      },
+    ]);
+    setCategory("");
+    setQuery("");
 
     try {
-      // Get AI prediction
-      const aiContent = await getAIPrediction(query, category);
+      const aiContent = await getAIPrediction(questionToAsk);
 
-      // Add AI message to chat
       setChat((prev) =>
-        prev.map((msg, index) =>
-          index === prev.length - 1
+        prev.map((msg, idx) =>
+          idx === prev.length - 1
             ? {
-                type: "ai",
-                timestamp: new Date().toISOString(),
+                ...msg,
                 content: aiContent,
                 isLoading: false,
+                timestamp: new Date().toISOString(),
               }
             : msg,
         ),
       );
 
-      // Save prediction and response to supabase
+      // Save prediction to supabase
       const currentDate = new Date();
-      const birthDate = new Date(profile.dob);
-      const age = currentDate.getFullYear() - birthDate.getFullYear();
-
-      // Here you can optionally parse details if needed;
-      // for now, we store the prompt/response as the prediction_content for both historical and reference
+      let age = 0;
+      if (profile.dob) {
+        const birthDate = new Date(profile.dob);
+        age = currentDate.getFullYear() - birthDate.getFullYear();
+        const beforeBirthday =
+          currentDate.getMonth() < birthDate.getMonth() ||
+          (currentDate.getMonth() === birthDate.getMonth() &&
+            currentDate.getDate() < birthDate.getDate());
+        if (beforeBirthday) age--;
+      }
 
       const predictionData = {
-        diagnosis: "", // (optional, can parse from aiContent if model structure changes)
+        diagnosis: "",
         velocity: "",
         goldenWindow: "",
         protocol: "",
@@ -153,21 +201,21 @@ User Query Context:
           age,
           dob: profile.dob,
           faith: profile.faith,
-          category,
+          question: questionToAsk,
           timestamp: currentDate.toISOString(),
         },
       };
 
-      const predictionInsertData: predictionInsert = {
+      const predictionInsertData: PredictionInsert = {
         prediction_content: predictionData,
-        query,
-        query_category: category,
+        query: questionToAsk,
+        query_category: "",
         user_id: profile.id,
       };
 
       const { error: insertError } = await supabase
         .from("predictions")
-        .insert(predictionInsertData);
+        .insert([predictionInsertData]);
 
       if (insertError) throw insertError;
 
@@ -178,28 +226,103 @@ User Query Context:
         .eq("id", profile.id);
 
       if (updateError) throw updateError;
-
       await refreshProfile();
 
-      // Clear input and reset category for a new question
-      setQuery("");
-      setCategory("Career");
+      // After successful prediction, fetch new follow-up questions based on updated chat!
+      const aiMessage: ChatMessage = {
+        type: "ai",
+        timestamp: new Date().toISOString(),
+        content: aiContent,
+      };
+      const updatedChat: ChatMessage[] = [...chat, userMessage, aiMessage];
+      const aiQuestions = await fetchAIGeneratedQuestions(updatedChat);
+
+      setCategories(aiQuestions || []);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to generate prediction";
       setError(errorMessage);
 
-      // Rollback last user chat if error
+      // Remove last user+loading if error
       setChat((prev) => {
         const newChat = [...prev];
-        if (newChat.length && newChat[newChat.length - 1].type === "user")
+        while (
+          newChat.length &&
+          (newChat[newChat.length - 1].type === "user" ||
+            newChat[newChat.length - 1].isLoading)
+        ) {
           newChat.pop();
+        }
         return newChat;
       });
     } finally {
       setLoading(false);
     }
   };
+
+  // Initial greeting and question suggestion
+  const generateInitialHook = useCallback(async () => {
+    generateInitialHookCallCount.current += 1;
+    if (generateInitialHookCallCount.current >= 3) {
+      clearAll();
+      generateInitialHookCallCount.current = 0;
+    }
+    if (!profile || hasInitialized) return;
+
+    try {
+      const prompt = `
+User Query Context:
+- Name: ${profile.full_name || "User"}
+- Faith: ${profile.faith || "Universal"}
+- DOB: ${profile.dob || ""}
+      `;
+
+      const combinedPrompt = `${ACHARYA_MASTER_PROMPT}\n\n${prompt}`;
+
+      const res = await fetch("/api/gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: combinedPrompt }),
+      });
+
+      const data = await res.json();
+      if (!data.text) return;
+
+      const initialChat: ChatMessage[] = [
+        {
+          type: "ai",
+          timestamp: new Date().toISOString(),
+          content: data.text,
+        },
+      ];
+
+      setChat(initialChat);
+      setHasInitialized(true);
+
+      // Generate AI follow-up questions after the greeting
+      const aiQuestions = await fetchAIGeneratedQuestions(initialChat);
+      setCategories(aiQuestions || []);
+    } catch (err) {
+      console.error("Hook generation failed", err);
+    }
+  }, [profile, hasInitialized, clearAll, fetchAIGeneratedQuestions]);
+
+  // On mount/reset, call initial greeting/questions
+  useEffect(() => {
+    if (profile && chat.length === 0 && !hasInitialized) {
+      if (typeof window !== "undefined") {
+    const w = window as typeof window & {
+      __ACHARYA_INITIAL_HOOK_CALLED__?: boolean;
+    };
+    if (w.__ACHARYA_INITIAL_HOOK_CALLED__) {
+      return;
+    }
+    w.__ACHARYA_INITIAL_HOOK_CALLED__ = true;
+  }
+      generateInitialHook();
+      setCategories([]);
+    }
+  }, [profile, chat.length, hasInitialized, generateInitialHook]);
 
   return (
     <div className="flex flex-col h-screen max-h-screen bg-white dark:bg-neutral-900 shadow-sm overflow-hidden">
@@ -244,21 +367,22 @@ User Query Context:
                 d="M12 6v6l4 2"
               />
             </svg>
-            Credits: {profile?.credits || 0}
+            Credits: {profile?.credits ?? 0}
           </span>
         </div>
       </div>
-
-      {/* Chat height scrollable area */}
+      {/* Chat area */}
       <div
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-amber-50 dark:bg-neutral-950 flex flex-col-reverse"
         style={{ display: "flex", flexDirection: "column-reverse" }}
       >
-        {chat.length === 0 ? (
+        {chat.length === 0 && !hasInitialized ? (
           <div className="flex flex-col items-start animate-fadeIn group">
             <div className="relative max-w-2xl inline-block bg-white dark:bg-gray-900 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm">
-              <span>Hey {profile?.full_name}! What&apos;s on your mind?</span>
+              <span>
+                Hey {profile?.full_name || "there"}! What&apos;s on your mind?
+              </span>
             </div>
             <div className="flex items-center gap-2 mt-1 pl-1">
               <span className="w-6 h-6 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-white shrink-0">
@@ -270,7 +394,6 @@ User Query Context:
             </div>
           </div>
         ) : (
-          // Reverse chat order so latest is at the bottom
           [...chat].reverse().map((msg, i) =>
             msg.type === "user" ? (
               <div
@@ -279,19 +402,13 @@ User Query Context:
               >
                 <div className="relative max-w-lg inline-block bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 mb-2 px-4 py-3 rounded-lg rtl:rounded-bl-none ltr:rounded-br-none shadow-sm text-sm">
                   <span>{msg.content}</span>
-                  {/* {msg.category && (
-                    <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      <span className="font-bold">Life Area: </span>
-                      {msg.category}
-                    </span>
-                  )} */}
                 </div>
                 <div className="flex items-center gap-2 mt-1 pr-1">
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                     {profile?.full_name || "You"}
                   </span>
                   <span className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-200 shrink-0">
-                    {(profile?.full_name || "Y").charAt(0).toUpperCase()}
+                    {(profile?.full_name || "Y")[0].toUpperCase()}
                   </span>
                 </div>
               </div>
@@ -326,61 +443,81 @@ User Query Context:
           )
         )}
       </div>
-
-      {/* Question input at bottom - like a chat bar */}
+      {/* Input area */}
       <form
         onSubmit={handlePredict}
         className="bg-white dark:bg-neutral-900 border-t border-amber-100 dark:border-neutral-800 px-6 py-4 pb-6 flex flex-col gap-3"
+        autoComplete="off"
       >
         <div>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex flex-col gap-3">
             <label className="text-sm font-medium text-gray-700 dark:text-neutral-200">
-              Life Area:
+              <span>
+                {categories.length > 0
+                  ? "Try a follow-up question or type your own:"
+                  : "Type your question below:"}
+              </span>
             </label>
-            <div className="flex flex-wrap gap-1">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setCategory(cat)}
-                  className={`px-3 py-1 rounded-lg border-2 text-sm transition-all ${
-                    category === cat
-                      ? "border-amber-600 dark:border-yellow-400 bg-amber-100 dark:bg-neutral-800 text-amber-900 dark:text-yellow-100"
-                      : "border-gray-200 dark:border-neutral-700 hover:border-amber-200 dark:hover:border-yellow-400 text-gray-600 dark:text-neutral-300"
-                  }`}
-                  disabled={loading}
-                >
-                  {cat}
-                </button>
-              ))}
+            {categories.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {categories.map((catQ) => (
+                  <button
+                    key={catQ}
+                    type="button"
+                    onClick={() => {
+                      setCategory(catQ);
+                      setQuery("");
+                    }}
+                    className={`px-3 py-1 rounded-lg border-2 text-sm transition-all ${
+                      category === catQ
+                        ? "border-amber-600 dark:border-yellow-400 bg-amber-100 dark:bg-neutral-800 text-amber-900 dark:text-yellow-100"
+                        : "border-gray-200 dark:border-neutral-700 hover:border-amber-200 dark:hover:border-yellow-400 text-gray-600 dark:text-neutral-300"
+                    }`}
+                    disabled={loading}
+                  >
+                    {catQ}
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="flex items-end gap-2">
+              <input
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setCategory("");
+                }}
+                required={categories.length === 0}
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-yellow-500 focus:border-transparent resize-none text-sm bg-white dark:bg-neutral-900 text-gray-900 dark:text-yellow-50"
+                placeholder={
+                  categories.length
+                    ? "Type a new question or pick a follow-up..."
+                    : "What's your question?"
+                }
+                disabled={loading || !profile || profile.credits < 1}
+                autoComplete="off"
+              />
+              <button
+                type="submit"
+                disabled={
+                  loading ||
+                  (!query.trim() && !(category && category.trim())) ||
+                  !profile ||
+                  profile.credits < 1
+                }
+                className="bg-amber-600 dark:bg-yellow-700 text-white dark:text-black rounded-lg px-5 py-2 font-medium hover:bg-amber-700 dark:hover:bg-yellow-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Send
+                  </>
+                )}
+              </button>
             </div>
           </div>
-        </div>
-        <div className="flex items-end gap-2">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            required
-            className="flex-1 px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-yellow-500 focus:border-transparent resize-none text-sm bg-white dark:bg-neutral-900 text-gray-900 dark:text-yellow-50"
-            placeholder="Type your question here..."
-            disabled={loading || !profile || profile.credits < 1}
-          />
-          <button
-            type="submit"
-            disabled={
-              loading || !query.trim() || !profile || profile.credits < 1
-            }
-            className="bg-amber-600 dark:bg-yellow-700 text-white dark:text-black rounded-lg px-5 py-2 font-medium hover:bg-amber-700 dark:hover:bg-yellow-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
-          >
-            {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                Send
-              </>
-            )}
-          </button>
         </div>
         {error && (
           <div className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-300 px-4 py-2 rounded-lg text-xs flex items-start gap-2 mt-1">
@@ -392,7 +529,8 @@ User Query Context:
       {!loading && profile && profile.credits < 1 && (
         <div className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-300 px-4 py-2 rounded-lg text-xs flex items-center gap-2 justify-center mt-4">
           <AlertCircle className="w-4 h-4 shrink-0" />
-          You do not have enough credits to ask a question.
+          You do not have enough credits to ask a question. Please purchase more
+          credits to continue.
         </div>
       )}
     </div>
