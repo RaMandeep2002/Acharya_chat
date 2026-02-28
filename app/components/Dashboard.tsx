@@ -6,12 +6,13 @@ import { AdminView } from "./dashboard/AdminView";
 import { HistoryView } from "./dashboard/HistortView";
 import CreditsView from "./dashboard/CreditsView";
 import SettingsView from "./dashboard/SettingsView";
+// import { Selftest } from "./dashboard/Selftest";
 // import Chat from "./dashboard/Chat";
 
 export default function Dashboard() {
   const { profile } = useAuth();
   const [currentView, setCurrentView] = useState<
-    "predict" | "history" | "credits" | "settings" | "admin"
+    "predict" | "history" | "credits" | "settings" | "admin" | "self"
   >("predict");
 
 
@@ -25,6 +26,8 @@ export default function Dashboard() {
         return <CreditsView />;
       case "settings":
         return <SettingsView />;
+      // case "self":
+      //   return <Selftest />;
       case "admin":
         return profile?.is_admin ? <AdminView /> : <PredictionView />;
       default:
