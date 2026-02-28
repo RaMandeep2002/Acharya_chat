@@ -82,7 +82,22 @@ export function PredictionView() {
       console.log("data ====> ", data)
       let arr: string[] = [];
       try {
-        arr = JSON.parse(data.text);
+        // Attempt to clean up common "```json" or "```" Markdown formatting artifacts
+        let text = data.text;
+        if (typeof text === "string") {
+          text = text.trim();
+          if (text.startsWith("```json")) {
+            text = text.replace(/^```json/, "");
+          }
+          if (text.startsWith("```")) {
+            text = text.replace(/^```/, "");
+          }
+          if (text.endsWith("```")) {
+            text = text.replace(/```$/, "");
+          }
+          text = text.trim();
+        }
+        arr = JSON.parse(text);
         if (!Array.isArray(arr)) throw new Error("Not array");
         // Remove any trailing semicolon from each question string
         return arr

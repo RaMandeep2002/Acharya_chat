@@ -11,7 +11,7 @@ import {
   Menu,
   X,
   Sparkles,
-  UserCheck,
+  // UserCheck,
 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import {
