@@ -476,7 +476,7 @@ User Query Context:
                       setCategory(catQ);
                       setQuery("");
                     }}
-                    className={`px-3 py-1 rounded-lg border-2 text-sm transition-all ${
+                    className={`px-3 py-1 rounded-lg border-2 border-dotted text-sm transition-all ${
                       category === catQ
                         ? "border-amber-600 dark:border-yellow-400 bg-amber-100 dark:bg-neutral-800 text-amber-900 dark:text-yellow-100"
                         : "border-gray-200 dark:border-neutral-700 hover:border-amber-200 dark:hover:border-yellow-400 text-gray-600 dark:text-neutral-300"
