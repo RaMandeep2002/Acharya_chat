@@ -494,7 +494,7 @@ User Query Context:
                   flex
                   ${
                     typeof window !== "undefined" && window.innerWidth <= 640
-                      ? "flex-nowrap overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full"
+                      ? "flex-nowrap overflow-x-scroll"
                       : "flex-wrap"
                   }
                 `}
