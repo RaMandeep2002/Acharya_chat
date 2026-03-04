@@ -79,7 +79,7 @@ export function PredictionView() {
       });
       if (!res.ok) return [];
       const data = await res.json();
-      console.log("data ====> ", data)
+      console.log("data ====> ", data);
       let arr: string[] = [];
       try {
         // Attempt to clean up common "```json" or "```" Markdown formatting artifacts
@@ -105,8 +105,8 @@ export function PredictionView() {
           .filter(Boolean);
       } catch (e) {
         const errorMessage =
-        e instanceof Error ? e.message : "Failed to generate prediction";
-      setError(errorMessage);
+          e instanceof Error ? e.message : "Failed to generate prediction";
+        setError(errorMessage);
         // fallback: try to split by newlines
         if (typeof data.text === "string") {
           return data.text
@@ -335,14 +335,14 @@ User Query Context:
   useEffect(() => {
     if (profile && chat.length === 0 && !hasInitialized) {
       if (typeof window !== "undefined") {
-    const w = window as typeof window & {
-      __ACHARYA_INITIAL_HOOK_CALLED__?: boolean;
-    };
-    if (w.__ACHARYA_INITIAL_HOOK_CALLED__) {
-      return;
-    }
-    w.__ACHARYA_INITIAL_HOOK_CALLED__ = true;
-  }
+        const w = window as typeof window & {
+          __ACHARYA_INITIAL_HOOK_CALLED__?: boolean;
+        };
+        if (w.__ACHARYA_INITIAL_HOOK_CALLED__) {
+          return;
+        }
+        w.__ACHARYA_INITIAL_HOOK_CALLED__ = true;
+      }
       generateInitialHook();
       setCategories([]);
     }
@@ -404,9 +404,13 @@ User Query Context:
         {chat.length === 0 && !hasInitialized ? (
           <div className="flex flex-col items-start animate-fadeIn group">
             <div className="relative max-w-2xl inline-block bg-white dark:bg-gray-900 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm">
-              <span>
-                Hey {profile?.full_name || "there"}! What&apos;s on your mind?
-              </span>
+              <div className="flex items-center gap-2 text-gray-500">
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></span>
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></span>
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-2 mt-1 pl-1">
               <span className="w-6 h-6 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-white shrink-0">
@@ -483,7 +487,23 @@ User Query Context:
               </span>
             </label>
             {categories.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
+              <div
+                className={`
+                  mb-2 
+                  gap-2
+                  flex
+                  ${
+                    typeof window !== "undefined" && window.innerWidth <= 640
+                      ? "flex-nowrap overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full"
+                      : "flex-wrap"
+                  }
+                `}
+                style={
+                  typeof window !== "undefined" && window.innerWidth <= 640
+                    ? { WebkitOverflowScrolling: "touch" }
+                    : undefined
+                }
+              >
                 {categories.map((catQ) => (
                   <button
                     key={catQ}
@@ -498,6 +518,11 @@ User Query Context:
                         : "border-gray-200 dark:border-neutral-700 hover:border-amber-200 dark:hover:border-yellow-400 text-gray-600 dark:text-neutral-300"
                     }`}
                     disabled={loading}
+                    style={
+                      typeof window !== "undefined" && window.innerWidth <= 640
+                        ? { minWidth: "max-content" }
+                        : undefined
+                    }
                   >
                     {catQ}
                   </button>
