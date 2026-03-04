@@ -22,7 +22,7 @@ export async function POST(req: Request) {
                 },
             ],
             config: {
-                maxOutputTokens: 2000,
+                // maxOutputTokens: 2000,
                 // temperature: 0.7,
                 // topP: 0.9,
             },
