@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState, useCallback } from 'react';
 import { Shield, TrendingUp, Users, Sparkles, DollarSign, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
