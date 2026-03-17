@@ -1,10 +1,13 @@
+"use client";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { AlertCircle, Loader2, Sparkles } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { supabase } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
-import PredictionCardView from "../common/PredictionViewCard";
+// import PredictionCardView from "../../common/PredictionViewCard";
 import { ACHARYA_MASTER_PROMPT } from "@/lib/acharyaPrompt";
+import PredictionCardView from "../common/PredictionViewCard";
+import { useRouter } from "next/navigation";
 
 type PredictionInsert = Database["public"]["Tables"]["predictions"]["Insert"];
 
@@ -17,7 +20,7 @@ interface ChatMessage {
   isLoading?: boolean;
 }
 
-export function PredictionView() {
+export default function DashboardPage() {
   const { profile, refreshProfile } = useAuth();
   const [query, setQuery] = useState<string>("");
   const [categories, setCategories] = useState<string[]>([]);
@@ -28,6 +31,7 @@ export function PredictionView() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [hasInitialized, setHasInitialized] = useState<boolean>(false);
   const generateInitialHookCallCount = useRef<number>(0);
+  const router = useRouter();
 
   // Clear all states
   const clearAll = useCallback(() => {
@@ -146,12 +150,20 @@ User Query Context:
   const handlePredict = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!profile || profile.credits < 1) {
+
+    // Check credits first - if no credits, don't proceed and don't show loading
+    if (!profile) {
+      setError("Please log in to continue.");
+      return;
+    }
+
+    if (profile.credits < 1) {
       setError(
         "You do not have enough credits to ask a question. Please purchase more credits to continue.",
       );
       return;
     }
+
     const questionToAsk = query.trim() || category.trim();
     if (!questionToAsk) return;
 
@@ -293,6 +305,21 @@ User Query Context:
     }
     if (!profile || hasInitialized) return;
 
+    // Do not generate chat if credits are zero
+    if (profile.credits === 0) {
+      // Set a system message indicating no credits
+      setChat([
+        {
+          type: "ai",
+          timestamp: new Date().toISOString(),
+          content:
+            "Welcome! You currently have 0 credits. Please purchase credits to start asking questions.",
+        },
+      ]);
+      setHasInitialized(true);
+      return;
+    }
+
     try {
       const prompt = `
 User Query Context:
@@ -349,67 +376,20 @@ User Query Context:
   }, [profile, chat.length, hasInitialized, generateInitialHook]);
 
   return (
-    <div className="flex flex-col h-screen max-h-screen bg-white dark:bg-neutral-900 shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 shadow-sm bg-linear-to-r from-amber-50 via-yellow-100 to-orange-50 dark:from-yellow-900 dark:via-yellow-950 dark:to-yellow-900">
-        <div className="flex items-center gap-3">
-          <span className="rounded-full bg-amber-100 dark:bg-yellow-600/30 w-10 h-10 flex items-center justify-center">
-            <svg
-              className="w-7 h-7 text-amber-900 dark:text-yellow-100"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 3v1m0 16v1m8.66-12.34l-.7.7m-13.92 0l-.7-.7M21 12h-1M4 12H3m15.36 6.36l-.7-.7m-10.92 0l-.7.7M17 17c-2.5 2.5-6.5 2.5-9 0s-2.5-6.5 0-9 6.5-2.5 9 0 2.5 6.5 0 9z"
-              />
-            </svg>
-          </span>
-          <div>
-            <div className="font-bold text-lg leading-tight text-amber-800 dark:text-yellow-100">
-              Acharya
-            </div>
-            <div className="text-xs font-medium text-amber-600 dark:text-yellow-200">
-              Online
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 border border-amber-400 dark:border-yellow-600 px-2 py-1 rounded-full bg-amber-50 dark:bg-yellow-950 text-xs font-semibold text-amber-700 dark:text-yellow-200 shadow">
-            <svg
-              className="w-4 h-4 text-amber-600 dark:text-yellow-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6l4 2"
-              />
-            </svg>
-            Credits: {profile?.credits ?? 0}
-          </span>
-        </div>
-      </div>
+    <div className="flex flex-col justify-center items-center h-screen max-h-screen bg-white dark:bg-neutral-900 shadow-sm overflow-hidden">
       {/* Chat area */}
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-amber-50 dark:bg-neutral-950 flex flex-col-reverse"
+        className="flex-1 overflow-y-auto px-6 py-4 space-y-4 flex flex-col-reverse w-full max-w-4xl"
         style={{ display: "flex", flexDirection: "column-reverse" }}
       >
         {chat.length === 0 && !hasInitialized ? (
           <div className="flex flex-col items-start animate-fadeIn group">
             <div className="relative max-w-2xl inline-block bg-white dark:bg-gray-900 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm">
               <div className="flex items-center gap-2 text-gray-500">
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></span>
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></span>
-                </div>
+                <span className="font-semibold text-amber-700 dark:text-yellow-200">
+                  Welcome! How can I help you today? We&apos;ve generated one automated Prediction for you.
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-2 mt-1 pl-1">
@@ -471,115 +451,129 @@ User Query Context:
           )
         )}
       </div>
-      {/* Input area */}
-      <form
-        onSubmit={handlePredict}
-        className="bg-white dark:bg-neutral-900 border-t border-amber-100 dark:border-neutral-800 px-6 py-4 pb-6 flex flex-col gap-3"
-        autoComplete="off"
-      >
-        <div>
-          <div className="flex flex-col gap-3">
-            <label className="text-sm font-medium text-gray-700 dark:text-neutral-200">
-              <span>
-                {categories.length > 0
-                  ? "Try a follow-up question or type your own:"
-                  : "Type your question below:"}
-              </span>
-            </label>
-            {categories.length > 0 && (
-              <div
-                className={`
-                  mb-2 
-                  gap-2
-                  flex
-                  ${
-                    typeof window !== "undefined" && window.innerWidth <= 640
-                      ? "flex-nowrap overflow-x-scroll"
-                      : "flex-wrap"
-                  }
-                `}
-                style={
-                  typeof window !== "undefined" && window.innerWidth <= 640
-                    ? { WebkitOverflowScrolling: "touch" }
-                    : undefined
-                }
-              >
-                {categories.map((catQ) => (
-                  <button
-                    key={catQ}
-                    type="button"
-                    onClick={() => {
-                      setCategory(catQ);
-                      setQuery("");
-                    }}
-                    className={`px-3 py-1 rounded-lg border-2 border-dotted text-sm transition-all ${
-                      category === catQ
-                        ? "border-amber-600 dark:border-yellow-400 bg-amber-100 dark:bg-neutral-800 text-amber-900 dark:text-yellow-100"
-                        : "border-gray-200 dark:border-neutral-700 hover:border-amber-200 dark:hover:border-yellow-400 text-gray-600 dark:text-neutral-300"
-                    }`}
-                    disabled={loading}
-                    style={
+      {/* Centered Input area */}
+      <div className="w-full flex justify-center items-center">
+        <form
+          onSubmit={handlePredict}
+          className="bg-white dark:bg-neutral-900 dark:border-neutral-800 px-6 py-4 pb-6 flex flex-col gap-3 w-full max-w-4xl"
+          autoComplete="off"
+        >
+          <div>
+            <div className="flex flex-col gap-3">
+              <label className="text-sm font-medium text-gray-700 dark:text-neutral-200">
+                <span>
+                  {categories.length > 0
+                    ? "Try a follow-up question or type your own:"
+                    : "Type your question below:"}
+                </span>
+              </label>
+              {categories.length > 0 && (
+                <div
+                  className={`
+                    mb-2 
+                    gap-2
+                    flex
+                    ${
                       typeof window !== "undefined" && window.innerWidth <= 640
-                        ? { minWidth: "max-content" }
-                        : undefined
+                        ? "flex-nowrap overflow-x-scroll"
+                        : "flex-wrap"
                     }
-                  >
-                    {catQ}
-                  </button>
-                ))}
+                  `}
+                  style={
+                    typeof window !== "undefined" && window.innerWidth <= 640
+                      ? { WebkitOverflowScrolling: "touch" }
+                      : undefined
+                  }
+                >
+                  {categories.map((catQ) => (
+                    <button
+                      key={catQ}
+                      type="button"
+                      onClick={() => {
+                        setCategory(catQ);
+                        setQuery("");
+                      }}
+                      className={`px-3 py-1 rounded-lg border-2 border-dotted text-sm transition-all ${
+                        category === catQ
+                          ? "border-amber-600 dark:border-yellow-400 bg-amber-100 dark:bg-neutral-800 text-amber-900 dark:text-yellow-100"
+                          : "border-gray-200 dark:border-neutral-700 hover:border-amber-200 dark:hover:border-yellow-400 text-gray-600 dark:text-neutral-300"
+                      }`}
+                      disabled={!!(loading || (profile && profile.credits < 1))}
+                      style={
+                        typeof window !== "undefined" && window.innerWidth <= 640
+                          ? { minWidth: "max-content" }
+                          : undefined
+                      }
+                    >
+                      {catQ}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-end gap-2">
+                <input
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setCategory("");
+                  }}
+                  required={categories.length === 0}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-yellow-500 focus:border-transparent resize-none text-sm bg-white dark:bg-neutral-900 text-gray-900 dark:text-yellow-50"
+                  placeholder={
+                    categories.length
+                      ? "Type a new question or pick a follow-up..."
+                      : "What's your question?"
+                  }
+                  disabled={loading || !profile || profile.credits < 1}
+                  autoComplete="off"
+                />
+                <button
+                  type="submit"
+                  disabled={
+                    loading ||
+                    (!query.trim() && !(category && category.trim())) ||
+                    !profile ||
+                    profile.credits < 1
+                  }
+                  className="bg-amber-600 dark:bg-yellow-700 text-white dark:text-black rounded-lg px-5 py-2 font-medium hover:bg-amber-700 dark:hover:bg-yellow-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Send
+                    </>
+                  )}
+                </button>
               </div>
-            )}
-            <div className="flex items-end gap-2">
-              <input
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setCategory("");
-                }}
-                required={categories.length === 0}
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-yellow-500 focus:border-transparent resize-none text-sm bg-white dark:bg-neutral-900 text-gray-900 dark:text-yellow-50"
-                placeholder={
-                  categories.length
-                    ? "Type a new question or pick a follow-up..."
-                    : "What's your question?"
-                }
-                disabled={loading || !profile || profile.credits < 1}
-                autoComplete="off"
-              />
-              <button
-                type="submit"
-                disabled={
-                  loading ||
-                  (!query.trim() && !(category && category.trim())) ||
-                  !profile ||
-                  profile.credits < 1
-                }
-                className="bg-amber-600 dark:bg-yellow-700 text-white dark:text-black rounded-lg px-5 py-2 font-medium hover:bg-amber-700 dark:hover:bg-yellow-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
-              >
-                {loading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    Send
-                  </>
-                )}
-              </button>
             </div>
           </div>
-        </div>
-        {error && (
-          <div className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-300 px-4 py-2 rounded-lg text-xs flex items-start gap-2 mt-1">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            {error}
-          </div>
-        )}
-      </form>
+          {error && (
+            <div className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-300 px-4 py-2 rounded-lg text-xs flex items-start gap-2 mt-1">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              {error}
+            </div>
+          )}
+        </form>
+      </div>
       {!loading && profile && profile.credits < 1 && (
-        <div className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-300 px-4 py-2 rounded-lg text-xs flex items-center gap-2 justify-center mt-4">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          You do not have enough credits to ask a question. Please purchase more
-          credits to continue.
+        <div className="w-full flex justify-center items-center">
+          <div className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-300 px-4 py-2 rounded-lg text-xs flex items-center gap-2 justify-center mt-4 max-w-xl w-full">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            You do not have enough credits to ask a question.
+            <span>
+              Please{" "}
+              <button
+                // href="/dashboard/credits"
+                onClick={() => router.push("/dashboard/credits")}
+                className="underline text-amber-700 dark:text-yellow-400 hover:text-amber-900 dark:hover:text-yellow-200 ml-1"
+              >
+                Purchase more credits
+              </button>{" "}
+              to continue.
+            </span>
+          </div>
         </div>
       )}
     </div>

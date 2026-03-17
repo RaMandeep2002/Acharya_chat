@@ -1,3 +1,4 @@
+"use client"
 import { useAuth } from "@/app/context/AuthContext";
 import { supabase } from "@/lib/supabase/client";
 import {

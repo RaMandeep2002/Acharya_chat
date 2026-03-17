@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState } from "react";
 import { History, Loader2, Clock, Tag } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -32,7 +33,7 @@ interface Prediction {
   created_at: string;
 }
 
-export function HistoryView() {
+export default function HistoryView() {
   const { profile } = useAuth();
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
