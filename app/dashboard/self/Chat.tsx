@@ -1,7 +1,7 @@
 // "use client";
 import { useState } from "react";
-import PredictionCardView from "../common/PredictionViewCard";
 import { Loader2 } from "lucide-react";
+import PredictionCardView from "@/app/common/PredictionViewCard";
 
 export default function Chat() {
 
