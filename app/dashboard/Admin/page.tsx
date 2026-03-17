@@ -19,7 +19,7 @@ type RecentUser =
   Database["public"]["Tables"]["profiles"]["Row"];
   
 
-export function AdminView() {
+export default function AdminView() {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     totalRevenue: 0,

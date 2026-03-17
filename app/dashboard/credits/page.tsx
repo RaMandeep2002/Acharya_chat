@@ -126,7 +126,7 @@ export default function CreditsView() {
         })}
       </div>
 
-      <div className="bg-linear-to-r from-amber-600 to-orange-600 dark:bg-gradient-to-r dark:from-yellow-800 dark:to-yellow-700 rounded-xl shadow-sm p-8 text-white dark:text-yellow-50">
+      <div className="bg-linear-to-r from-amber-600 to-orange-600 dark:bg-linear-to-r dark:from-yellow-800 dark:to-yellow-700 rounded-xl shadow-sm p-8 text-white dark:text-yellow-50">
         <h3 className="text-2xl font-bold mb-4">How Credits Work</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
