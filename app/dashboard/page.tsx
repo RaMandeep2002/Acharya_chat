@@ -376,13 +376,40 @@ User Query Context:
   }, [profile, chat.length, hasInitialized, generateInitialHook]);
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen max-h-screen bg-white dark:bg-neutral-900 shadow-sm overflow-hidden">
+    <div
+    className="flex flex-col justify-center items-center h-screen max-h-screen bg-white dark:bg-neutral-900 shadow-sm overflow-hidden relative"
+    style={{
+      backgroundImage: `url('/bgimage.jpeg')`, // Desktop default
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    }}
+  >
+      {/* Overlay for reducing image intensity */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundColor: "rgba(34, 34, 34, 0.42)", // semi-transparent dark overlay
+          mixBlendMode: "multiply",
+          zIndex: 0, // ensure the overlay sits below the content
+        }}
+      />
       {/* Chat area */}
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto px-6 py-4 space-y-4 flex flex-col-reverse w-full max-w-4xl"
-        style={{ display: "flex", flexDirection: "column-reverse" }}
+        className="flex-1 overflow-y-auto px-6 py-4 space-y-4 flex flex-col-reverse w-full max-w-4xl scrollbar-hide"
+        style={{
+          display: "flex",
+          flexDirection: "column-reverse",
+          scrollbarWidth: "none",        // Firefox
+          msOverflowStyle: "none",       // IE & Edge
+        }}
       >
+        <style jsx global>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
         {chat.length === 0 && !hasInitialized ? (
           <div className="flex flex-col items-start animate-fadeIn group">
             <div className="relative max-w-2xl inline-block bg-white dark:bg-gray-900 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm">
