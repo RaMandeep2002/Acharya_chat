@@ -1,13 +1,13 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { AlertCircle, Loader2, Sparkles } from "lucide-react";
+import { AlertCircle, Sparkles } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { supabase } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
-// import PredictionCardView from "../../common/PredictionViewCard";
 import { ACHARYA_MASTER_PROMPT } from "@/lib/acharyaPrompt";
-import PredictionCardView from "../common/PredictionViewCard";
 import { useRouter } from "next/navigation";
+import { ChatInput } from "@/components/Chat/ChatInput";
+import { ChatMessage as ChatMessageComponent } from "@/components/Chat/ChatMessage";
 
 type PredictionInsert = Database["public"]["Tables"]["predictions"]["Insert"];
 
@@ -20,6 +20,7 @@ interface ChatMessage {
   isLoading?: boolean;
 }
 
+
 export default function DashboardPage() {
   const { profile, refreshProfile } = useAuth();
   const [query, setQuery] = useState<string>("");
@@ -30,6 +31,7 @@ export default function DashboardPage() {
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [hasInitialized, setHasInitialized] = useState<boolean>(false);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const generateInitialHookCallCount = useRef<number>(0);
   const router = useRouter();
 
@@ -83,10 +85,8 @@ export default function DashboardPage() {
       });
       if (!res.ok) return [];
       const data = await res.json();
-      console.log("data ====> ", data);
       let arr: string[] = [];
       try {
-        // Attempt to clean up common "```json" or "```" Markdown formatting artifacts
         let text = data.text;
         if (typeof text === "string") {
           text = text.trim();
@@ -103,15 +103,11 @@ export default function DashboardPage() {
         }
         arr = JSON.parse(text);
         if (!Array.isArray(arr)) throw new Error("Not array");
-        // Remove any trailing semicolon from each question string
         return arr
-          .map((q) => String(q).replace(/;$/, "")) // remove semicolon at the end if present
+          .map((q) => String(q).replace(/;$/, "")) 
           .filter(Boolean);
       } catch (e) {
-        const errorMessage =
-          e instanceof Error ? e.message : "Failed to generate prediction";
-        setError(errorMessage);
-        // fallback: try to split by newlines
+        console.error(e)
         if (typeof data.text === "string") {
           return data.text
             .split("\n")
@@ -151,9 +147,21 @@ User Query Context:
     e.preventDefault();
     setError("");
 
-    // Check credits first - if no credits, don't proceed and don't show loading
     if (!profile) {
       setError("Please log in to continue.");
+      return;
+    }
+
+    // NEW Profile completeness check (The "Logic" and "Profile" step)
+    if (!profile.dob || !profile.faith || !profile.birth_place) {
+      const questionToAsk = query.trim() || category.trim();
+      if (questionToAsk) {
+        sessionStorage.setItem("pending_prediction_query", questionToAsk);
+      }
+      setIsAnalyzing(true);
+      setTimeout(() => {
+        router.push("/dashboard/Settings?intent=complete_profile");
+      }, 2000); // 2 second "Logic" analysis delay
       return;
     }
 
@@ -220,12 +228,6 @@ User Query Context:
       }
 
       const predictionData = {
-        diagnosis: "",
-        velocity: "",
-        goldenWindow: "",
-        protocol: "",
-        remedy: "",
-        hook: "",
         aiContent,
         metadata: {
           userName: profile.full_name,
@@ -259,7 +261,6 @@ User Query Context:
       if (updateError) throw updateError;
       await refreshProfile();
 
-      // After successful prediction, fetch new follow-up questions based on updated chat!
       const aiMessage: ChatMessage = {
         type: "ai",
         timestamp: new Date().toISOString(),
@@ -268,7 +269,6 @@ User Query Context:
       const updatedChat: ChatMessage[] = [...chat, userMessage, aiMessage];
       let aiQuestions = await fetchAIGeneratedQuestions(updatedChat);
 
-      // Remove any trailing semicolon from each question
       if (Array.isArray(aiQuestions)) {
         aiQuestions = aiQuestions.map((q: string) => q.replace(/;$/, ""));
       }
@@ -279,7 +279,6 @@ User Query Context:
         err instanceof Error ? err.message : "Failed to generate prediction";
       setError(errorMessage);
 
-      // Remove last user+loading if error
       setChat((prev) => {
         const newChat = [...prev];
         while (
@@ -296,36 +295,26 @@ User Query Context:
     }
   };
 
-  // Initial greeting and question suggestion
+  // Initial greeting WITHOUT automated first prediction (no credit deduction initially)
   const generateInitialHook = useCallback(async () => {
     generateInitialHookCallCount.current += 1;
+    
     if (generateInitialHookCallCount.current >= 3) {
       clearAll();
       generateInitialHookCallCount.current = 0;
     }
+    
     if (!profile || hasInitialized) return;
 
-    // Do not generate chat if credits are zero
-    if (profile.credits === 0) {
-      // Set a system message indicating no credits
-      setChat([
-        {
-          type: "ai",
-          timestamp: new Date().toISOString(),
-          content:
-            "Welcome! You currently have 0 credits. Please purchase credits to start asking questions.",
-        },
-      ]);
-      setHasInitialized(true);
-      return;
-    }
-
+    setLoading(true);
     try {
       const prompt = `
-User Query Context:
+Context for Initial Sacred Greeting:
 - Name: ${profile.full_name || "User"}
 - Faith: ${profile.faith || "Universal"}
 - DOB: ${profile.dob || ""}
+
+Please provide an initial greeting and a brief welcome message for this user. Avoid doing a full prediction yet.
       `;
 
       const combinedPrompt = `${ACHARYA_MASTER_PROMPT}\n\n${prompt}`;
@@ -337,30 +326,47 @@ User Query Context:
       });
 
       const data = await res.json();
-      if (!data.text) return;
+      const aiContent = data.text;
+      
+      if (!aiContent) throw new Error("No content generated");
 
       const initialChat: ChatMessage[] = [
         {
           type: "ai",
           timestamp: new Date().toISOString(),
-          content: data.text,
+          content: aiContent,
         },
       ];
 
       setChat(initialChat);
       setHasInitialized(true);
 
-      // Generate AI follow-up questions after the greeting
       const aiQuestions = await fetchAIGeneratedQuestions(initialChat);
       setCategories(aiQuestions || []);
+
     } catch (err) {
-      console.error("Hook generation failed", err);
+      console.error("Initial greeting failed", err);
+      setChat([
+        {
+          type: "ai",
+          timestamp: new Date().toISOString(),
+          content: `Namaste ${profile.full_name || "seeker"}. How can I guide you today?`,
+        },
+      ]);
+      setHasInitialized(true);
+    } finally {
+      setLoading(false);
     }
   }, [profile, hasInitialized, clearAll, fetchAIGeneratedQuestions]);
 
-  // On mount/reset, call initial greeting/questions
   useEffect(() => {
     if (profile && chat.length === 0 && !hasInitialized) {
+      const pendingQuery = sessionStorage.getItem("pending_prediction_query");
+      if (pendingQuery && profile.dob && profile.faith && profile.birth_place) {
+        sessionStorage.removeItem("pending_prediction_query");
+        setQuery(pendingQuery);
+      }
+
       if (typeof window !== "undefined") {
         const w = window as typeof window & {
           __ACHARYA_INITIAL_HOOK_CALLED__?: boolean;
@@ -376,233 +382,166 @@ User Query Context:
   }, [profile, chat.length, hasInitialized, generateInitialHook]);
 
   return (
-    <div
-    className="flex flex-col justify-center items-center h-screen max-h-screen bg-white dark:bg-neutral-900 shadow-sm overflow-hidden relative"
+    <div className="flex flex-col justify-center items-center h-screen max-h-screen shadow-sm overflow-hidden relative">
+  
+  {/* Decorative Cosmic Background Elements */}
+  {/* <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute top-20 left-10 w-72 h-72 bg-amber-400/5 dark:bg-amber-500/5 rounded-full blur-3xl animate-pulse" />
+    <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/5 dark:bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-300/3 dark:bg-amber-400/3 rounded-full blur-3xl" />
+  </div> */}
+  
+  {/* Chat Messages Container */}
+  <div
+    ref={chatContainerRef}
+    className="flex-1 overflow-y-auto px-4 md:px-6 py-4 space-y-4 w-full max-w-5xl scrollbar-hide relative z-10"
     style={{
-      backgroundImage: `url('/bgimage.jpeg')`, // Desktop default
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
+      scrollbarWidth: "none",
+      msOverflowStyle: "none",
     }}
   >
-      {/* Overlay for reducing image intensity */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundColor: "rgba(34, 34, 34, 0.42)", // semi-transparent dark overlay
-          mixBlendMode: "multiply",
-          zIndex: 0, // ensure the overlay sits below the content
-        }}
-      />
-      {/* Chat area */}
-      <div
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto px-6 py-4 space-y-4 flex flex-col-reverse w-full max-w-4xl scrollbar-hide"
-        style={{
-          display: "flex",
-          flexDirection: "column-reverse",
-          scrollbarWidth: "none",        // Firefox
-          msOverflowStyle: "none",       // IE & Edge
-        }}
-      >
-        <style jsx global>{`
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
-        {chat.length === 0 && !hasInitialized ? (
-          <div className="flex flex-col items-start animate-fadeIn group">
-            <div className="relative max-w-2xl inline-block bg-white dark:bg-gray-900 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm">
-              <div className="flex items-center gap-2 text-gray-500">
-                <span className="font-semibold text-amber-700 dark:text-yellow-200">
-                  Welcome! How can I help you today? We&apos;ve generated one automated Prediction for you.
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 mt-1 pl-1">
-              <span className="w-6 h-6 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-white shrink-0">
-                A
-              </span>
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Acharya
-              </span>
-            </div>
-          </div>
-        ) : (
-          [...chat].reverse().map((msg, i) =>
-            msg.type === "user" ? (
-              <div
-                key={chat.length - 1 - i}
-                className="flex flex-col items-end animate-fadeIn group mb-4"
-              >
-                <div className="relative max-w-lg inline-block bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 mb-2 px-4 py-3 rounded-lg rtl:rounded-bl-none ltr:rounded-br-none shadow-sm text-sm">
-                  <span>{msg.content}</span>
-                </div>
-                <div className="flex items-center gap-2 mt-1 pr-1">
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {profile?.full_name || "You"}
-                  </span>
-                  <span className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-200 shrink-0">
-                    {(profile?.full_name || "Y")[0].toUpperCase()}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div
-                key={chat.length - 1 - i}
-                className="flex flex-col items-start animate-fadeIn group"
-              >
-                <div className="relative max-w-xl inline-block bg-white dark:bg-gray-900 mb-2 px-4 py-3 rounded-lg ltr:rounded-bl-none rtl:rounded-br-none shadow-sm text-gray-900 dark:text-gray-100 text-sm md:text-base">
-                  {msg.isLoading ? (
-                    <div className="flex items-center gap-2 text-gray-500">
-                      <div className="flex gap-1">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></span>
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></span>
-                      </div>
-                    </div>
-                  ) : (
-                    <PredictionCardView content={msg.content} />
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mt-1 pl-1">
-                  <span className="w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center text-base font-medium text-white shrink-0">
-                    A
-                  </span>
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Acharya
-                  </span>
-                </div>
-              </div>
-            ),
-          )
-        )}
-      </div>
-      {/* Centered Input area */}
-      <div className="w-full flex justify-center items-center">
-        <form
-          onSubmit={handlePredict}
-          className="bg-white dark:bg-neutral-900 dark:border-neutral-800 px-6 py-4 pb-6 flex flex-col gap-3 w-full max-w-4xl"
-          autoComplete="off"
-        >
-          <div>
-            <div className="flex flex-col gap-3">
-              <label className="text-sm font-medium text-gray-700 dark:text-neutral-200">
-                <span>
-                  {categories.length > 0
-                    ? "Try a follow-up question or type your own:"
-                    : "Type your question below:"}
-                </span>
-              </label>
-              {categories.length > 0 && (
-                <div
-                  className={`
-                    mb-2 
-                    gap-2
-                    flex
-                    ${
-                      typeof window !== "undefined" && window.innerWidth <= 640
-                        ? "flex-nowrap overflow-x-scroll"
-                        : "flex-wrap"
-                    }
-                  `}
-                  style={
-                    typeof window !== "undefined" && window.innerWidth <= 640
-                      ? { WebkitOverflowScrolling: "touch" }
-                      : undefined
-                  }
-                >
-                  {categories.map((catQ) => (
-                    <button
-                      key={catQ}
-                      type="button"
-                      onClick={() => {
-                        setCategory(catQ);
-                        setQuery("");
-                      }}
-                      className={`px-3 py-1 rounded-lg border-2 border-dotted text-sm transition-all ${
-                        category === catQ
-                          ? "border-amber-600 dark:border-yellow-400 bg-amber-100 dark:bg-neutral-800 text-amber-900 dark:text-yellow-100"
-                          : "border-gray-200 dark:border-neutral-700 hover:border-amber-200 dark:hover:border-yellow-400 text-gray-600 dark:text-neutral-300"
-                      }`}
-                      disabled={!!(loading || (profile && profile.credits < 1))}
-                      style={
-                        typeof window !== "undefined" && window.innerWidth <= 640
-                          ? { minWidth: "max-content" }
-                          : undefined
-                      }
-                    >
-                      {catQ}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <div className="flex items-end gap-2">
-                <input
-                  value={query}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-                    setCategory("");
-                  }}
-                  required={categories.length === 0}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-yellow-500 focus:border-transparent resize-none text-sm bg-white dark:bg-neutral-900 text-gray-900 dark:text-yellow-50"
-                  placeholder={
-                    categories.length
-                      ? "Type a new question or pick a follow-up..."
-                      : "What's your question?"
-                  }
-                  disabled={loading || !profile || profile.credits < 1}
-                  autoComplete="off"
-                />
-                <button
-                  type="submit"
-                  disabled={
-                    loading ||
-                    (!query.trim() && !(category && category.trim())) ||
-                    !profile ||
-                    profile.credits < 1
-                  }
-                  className="bg-amber-600 dark:bg-yellow-700 text-white dark:text-black rounded-lg px-5 py-2 font-medium hover:bg-amber-700 dark:hover:bg-yellow-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
-                >
-                  {loading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      Send
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-          {error && (
-            <div className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-300 px-4 py-2 rounded-lg text-xs flex items-start gap-2 mt-1">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              {error}
-            </div>
-          )}
-        </form>
-      </div>
-      {!loading && profile && profile.credits < 1 && (
-        <div className="w-full flex justify-center items-center">
-          <div className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-300 px-4 py-2 rounded-lg text-xs flex items-center gap-2 justify-center mt-4 max-w-xl w-full">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            You do not have enough credits to ask a question.
-            <span>
-              Please{" "}
-              <button
-                // href="/dashboard/credits"
-                onClick={() => router.push("/dashboard/credits")}
-                className="underline text-amber-700 dark:text-yellow-400 hover:text-amber-900 dark:hover:text-yellow-200 ml-1"
-              >
-                Purchase more credits
-              </button>{" "}
-              to continue.
-            </span>
-          </div>
+    <style jsx global>{`
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      @keyframes fadeSlideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .message-enter {
+        animation: fadeSlideUp 0.3s ease-out forwards;
+      }
+    `}</style>
+    
+    <div className="flex flex-col-reverse space-y-4 space-y-reverse">
+      {chat.length === 0 && !hasInitialized ? (
+        <div className="message-enter">
+          <ChatMessageComponent
+            type="ai"
+            content="Welcome! I am ready to offer you celestial guidance based on your profile."
+            timestamp={new Date().toISOString()}
+            profile={profile}
+          />
         </div>
+      ) : (
+        [...chat].reverse().map((msg, i) => (
+          <div key={chat.length - 1 - i} className="message-enter">
+            <ChatMessageComponent
+              {...msg}
+              profile={profile}
+            />
+          </div>
+        ))
       )}
     </div>
+  </div>
+
+  {/* Chat Input */}
+  <div className="relative z-10 w-full">
+    <ChatInput
+      query={query}
+      setQuery={setQuery}
+      category={category}
+      setCategory={setCategory}
+      categories={categories}
+      loading={loading}
+      profile={profile}
+      handlePredict={handlePredict}
+    />
+  </div>
+
+  {/* Error Message */}
+  {error && (
+    <div className="w-full max-w-5xl px-4 md:px-6 mb-4 relative z-10 animate-slideDown">
+      <div className="bg-red-50/95 dark:bg-red-950/95 backdrop-blur-sm border border-red-200 dark:border-red-800 text-red-600 dark:text-red-300 px-4 py-3 rounded-xl text-sm flex items-start gap-3 shadow-lg">
+        <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-500 dark:text-red-400" />
+        <div className="flex-1">{error}</div>
+        <button 
+          onClick={() => setError("")}
+          className="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-300 transition-colors"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  )}
+
+  {/* Credits Warning */}
+  {!loading && profile && profile.credits < 1 && (
+    <div className="w-full max-w-5xl px-4 md:px-6 mb-4 relative z-10 animate-slideDown">
+      <div className="bg-linear-to-r from-amber-50 to-yellow-50 dark:from-amber-950/90 dark:to-yellow-950/90 backdrop-blur-sm border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-xl text-sm flex flex-col sm:flex-row items-center gap-3 justify-between shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          </div>
+          <span className="text-center sm:text-left">
+            You do not have enough credits to ask a question.
+          </span>
+        </div>
+        <button
+          onClick={() => router.push("/dashboard/credits")}
+          className="px-4 py-1.5 bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 whitespace-nowrap"
+        >
+          Purchase Credits ✨
+        </button>
+      </div>
+    </div>
+  )}
+
+  {/* Analysis Overlay - Enhanced */}
+  {isAnalyzing && (
+    <div className="absolute inset-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md z-50 flex flex-col items-center justify-center animate-fadeIn">
+      {/* Animated Cosmic Ring */}
+      <div className="relative w-32 h-32 mb-8">
+        {/* Outer Rings */}
+        <div className="absolute inset-0 rounded-full border-4 border-amber-200 dark:border-amber-800/50 animate-ping opacity-75" />
+        <div className="absolute inset-0 rounded-full border-4 border-amber-300 dark:border-amber-700 animate-pulse" />
+        
+        {/* Spinning linear Ring */}
+        <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-amber-500 dark:border-t-amber-400 border-r-amber-500 dark:border-r-amber-400 animate-spin" />
+        
+        {/* Inner Glow */}
+        <div className="absolute inset-2 rounded-full bg-linear-to-br from-amber-400/20 to-purple-500/20 dark:from-amber-500/20 dark:to-purple-600/20 animate-pulse" />
+        
+        {/* Central Symbol */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Sparkles className="w-12 h-12 text-amber-600 dark:text-amber-400 animate-pulse" />
+        </div>
+      </div>
+      
+      {/* Text Content */}
+      <div className="text-center space-y-3">
+        <h2 className="text-2xl md:text-3xl font-bold bg-linear-to-r from-amber-600 to-amber-800 dark:from-amber-400 dark:to-amber-600 bg-clip-text text-transparent animate-pulse">
+          Channeling Cosmic Wisdom
+        </h2>
+        <p className="text-gray-600 dark:text-neutral-300 text-base md:text-lg">
+          Analyzing your celestial path...
+        </p>
+        <div className="flex items-center justify-center gap-2 mt-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+        </div>
+        <p className="text-xs text-gray-400 dark:text-neutral-500 mt-4">
+          Preparing sacred charts for precise guidance
+        </p>
+      </div>
+      
+      {/* Optional: Cancel Button */}
+      <button
+        onClick={() => {/* Handle cancel */}}
+        className="mt-8 text-sm text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors"
+      >
+        Cancel
+      </button>
+    </div>
+  )}
+</div>
   );
 }

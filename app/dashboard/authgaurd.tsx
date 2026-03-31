@@ -6,12 +6,12 @@ import ProfileData from '@/app/auth/ProfileData';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, profile, loading } = useAuth();
-
+  console.log({user, profile, loading })
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-amber-50 via-orange-50 to-amber-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-amber-50 via-orange-50 to-amber-100 dark:from-neutral-900 dark:via-gray-900 dark:to-neutral-950">
         <svg
-          className="animate-spin -ml-1 mr-3 h-12 w-12 text-amber-600"
+          className="animate-spin -ml-1 mr-3 h-12 w-12 text-amber-600 dark:text-yellow-200"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
