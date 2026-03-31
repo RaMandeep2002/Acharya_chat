@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from '@/app/context/AuthContext';
-import Authform from '@/app/auth/Authform';
+import Authform from '@/app/auth/page';
 import ProfileData from '@/app/auth/ProfileData';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
