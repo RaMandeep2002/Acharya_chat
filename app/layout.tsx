@@ -1,20 +1,18 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// import { ThemeProvider } from "./theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "./theme-provider";
+import { AuthProvider } from "./context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  // Ensure hydration matches by not using non-deterministic inputs here.
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-  // Ensure hydration matches by not using non-deterministic inputs here.
 });
 
 export const metadata: Metadata = {
@@ -23,15 +21,9 @@ export const metadata: Metadata = {
   icons: [
     {
       rel: "icon",
-      url: "/logo.svg", // Place your logo at public/logo.svg
+      url: "/logo.svg",
       type: "image/svg+xml"
     },
-    // Optionally, a shortcut icon (favicon)
-    // {
-    //   rel: "shortcut icon",
-    //   url: "/favicon.ico",
-    //   type: "image/x-icon"
-    // }
   ]
 };
 
@@ -46,16 +38,16 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {/* Avoid including non-deterministic data or “window” checks here */}
-        {/* <ThemeProvider
+        <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        > */}
-           <TooltipProvider>{children}</TooltipProvider>
-        
-        {/* </ThemeProvider> */}
+        >
+          <AuthProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
